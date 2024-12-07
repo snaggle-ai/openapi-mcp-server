@@ -9,6 +9,7 @@ async function build() {
   await esbuild.build({
     entryPoints: [join(__dirname, 'start-proxy.ts')],
     bundle: true,
+    minify: true,
     platform: 'node',
     target: 'node16',
     format: 'cjs',

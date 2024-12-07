@@ -4,40 +4,77 @@ import { OpenAPIV3 } from 'openapi-types'
 import { MCPProxy } from '../src/mcp/proxy'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import OpenAPISchemaValidator from 'openapi-schema-validator'
+import axios from 'axios'
 
-// Load OpenAPI spec
-const openApiPath = process.argv[2]
-if (!openApiPath) {
-  console.error(`Usage: openapi-mcp-server <path-to-openapi-spec>`)
-  process.exit(1)
-}
-
-// Validate and parse OpenAPI spec
-const rawSpec = fs.readFileSync(path.resolve(process.cwd(), openApiPath), 'utf-8')
-let openApiSpec: OpenAPIV3.Document
-try {
-  const parsed = JSON.parse(rawSpec)
-  
-  // Validate against OpenAPI 3.0 schema
-  //@ts-expect-error
-  const validator = new (OpenAPISchemaValidator.default ?? OpenAPISchemaValidator)({ version: 3.1 })
-  const validation = validator.validate(parsed)
-  
-  if (validation.errors.length > 0) {
-    console.error('Invalid OpenAPI 3.0 specification:')
-    validation.errors.forEach((error: any) => {
-      console.error(error)
-    })
-    
+export class ValidationError extends Error {
+  constructor(public errors: any[]) {
+    super('OpenAPI validation failed')
+    this.name = 'ValidationError'
   }
-  
-  openApiSpec = parsed
-} catch (error) {
-  console.error('Failed to parse OpenAPI specification:', (error as any).message)
-  process.exit(1)
 }
 
-// Create and start MCP proxy
-const proxy = new MCPProxy('OpenAPI Tools', openApiSpec)
-console.error('connecting')
-proxy.connect(new StdioServerTransport())
+export async function loadOpenApiSpec(specPath: string): Promise<OpenAPIV3.Document> {
+  let rawSpec: string
+
+  // Check if the path is a URL
+  if (specPath.startsWith('http://') || specPath.startsWith('https://')) {
+    try {
+      const response = await axios.get(specPath)
+      if (typeof response.data === 'string') {
+        rawSpec = response.data
+      } else {
+        rawSpec = JSON.stringify(response.data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch OpenAPI specification from URL:', (error as Error).message)
+      process.exit(1)
+    }
+  } else {
+    // Load from local file system
+    try {
+      rawSpec = fs.readFileSync(path.resolve(process.cwd(), specPath), 'utf-8')
+    } catch (error) {
+      console.error('Failed to read OpenAPI specification file:', (error as Error).message)
+      process.exit(1)
+    }
+  }
+
+  // Parse and validate the spec
+  try {
+    const parsed = JSON.parse(rawSpec)
+    return parsed
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      throw error
+    }
+    console.error('Failed to parse OpenAPI specification:', (error as Error).message)
+    process.exit(1)
+  }
+}
+
+// Main execution
+export async function main(args: string[] = process.argv.slice(2)) {
+  const specPath = args[0]
+  if (!specPath) {
+    throw new Error('Usage: openapi-mcp-server <path-to-openapi-spec>')
+  }
+
+  const openApiSpec = await loadOpenApiSpec(specPath)
+  const proxy = new MCPProxy('OpenAPI Tools', openApiSpec)
+  
+  console.error('Connecting to Claude Desktop...')
+  return proxy.connect(new StdioServerTransport())
+}
+
+// Only run main if this is the entry point
+if (require.main === module) {
+  main().catch(error => {
+    if (error instanceof ValidationError) {
+      console.error('Invalid OpenAPI 3.1 specification:')
+      error.errors.forEach(err => console.error(err))
+    } else {
+      console.error('Error:', error.message)
+    }
+    process.exit(1)
+  })
+}

@@ -172,3 +172,4 @@ dist
 .wrangler/
 /tmp
 .shared-secret
+.DS_Store

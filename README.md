@@ -1,171 +1,114 @@
-# Workers MCP Server
+# OpenAPI MCP Server
 
-> **Talk to your Cloudflare Workers from Claude Desktop!**
+> **Talk to any OpenAPI (v3.1) compliant API through Claude Desktop!**
 
-This is a proof-of-concept of writing a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) Server in a Cloudflare Worker. This gives you a way to extend Claude Desktop (among other MCP clients) by invoking functions in your Worker, which gives you access to any Cloudflare or third-party binding.
+This tool creates a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that acts as a proxy for any API that has an OpenAPI v3.1 specification. This allows you to use Claude Desktop to easily interact with both local and remote server APIs.
 
-You write worker code that looks like this:
+## What does it do?
 
-```ts
-export class ExampleWorkerMCP extends WorkerEntrypoint<Env> {
-	/**
-	 * Generates a random number. This is extra random because it had to travel all the way to
-	 * your nearest Cloudflare PoP to be calculated which... something something lava lamps?
-	 *
-	 * @return {string} A message containing a super duper random number
-	 * */
-	async getRandomNumber() {
-		return `Your random number is ${Math.random()}`
-	}
-}
+This proxy automatically converts OpenAPI endpoints into Claude tools, allowing Claude to:
+
+1. Discover available API endpoints and understand their purpose
+2. Know what parameters are required and their types
+3. Make API calls on your behalf
+4. Handle the responses appropriately
+
+For example, if you have a Petstore API with this endpoint:
+
+```yaml
+/pets/{petId}:
+  get:
+    operationId: getPetById
+    summary: Returns a pet by ID
+    parameters:
+      - name: petId
+        in: path
+        description: ID of pet to return
+        required: true
+        schema:
+          type: integer
 ```
 
-And, using the provided MCP proxy, your Claude Desktop can see & invoke these messages:
+Claude will see this as a tool it can use:
 
-![image](https://github.com/user-attachments/assets/c16b2631-4eba-4914-8e26-d6ccea0fc578)
+![Example of Claude seeing the getPetById tool](./examples/petstore_tools_in_claude.png)
 
-> <sub>Yes, I know that `Math.random()` works the same on a Worker as it does on your local machine, but don't tell Claude</sub> 🤫
+You can then ask Claude natural questions like:
+- "Can you fetch the details for pet ID 123?"
+- "What's the status of my pet with ID 456?"
 
-## Neat! How do I play?
+Claude will understand the context and make the appropriate API calls.
 
-0. **Download Claude Desktop** https://claude.ai/download
-1. **Clone this repo.**<br/>There's a few pieces of novel code that need to hang together to make this work, so for now the way to play with it is to clone this repo first. Then, from within this folder:
-2. **`pnpm install`**
-3. **Check `wrangler.json`**<br/>The current demo uses both the [Email Routing](https://developers.cloudflare.com/email-routing/) API and [Browser Rendering](https://developers.cloudflare.com/browser-rendering/. If you don't have access to these, or they're not enabled, comment out the relevant sections in `wrangler.json` or your deploy will fail.
-4. **`pnpm deploy:worker`**<br/>This takes your `src/index.ts` file and generate `generated/docs.json` from it, then deploys it using Wrangler.
-5. **`pnpm update:secret`**<br/>This generates `generated/.shared-secret` and set its contents as a secret on your worker using `wrangler secret put`. You only need to this once.
-6. **`pnpm install:claude <server-alias> <worker-url>`**<br/>For me, that's `pnpm install:claude workers-mcp-server https://workers-mcp-server.glen.workers.dev`
-7. **Restart Claude Desktop** You have to do this pretty often, but you _definitely_ have to do it after running the install step above.
+## Getting Started
 
-To iterate on your server, do the following:
+1. **Configure Claude Desktop:**
+   Add this to your `claude_desktop_config.json`:
+   ```json
+   {
+     "mcpServers": {
+       "petstore-api": {
+         "command": "npx",
+         "args": ["openapi-mcp-server", "/abs/path/to/petstore-openapi.json"]
+       }
+     }
+   }
+   ```
 
-0. Make your change to `src/index.ts`
-1. **`pnpm deploy:worker`**
-2. (usually) **Restart Claude Desktop**.<br/>You have to do this whenever you add/remove/change your methods or any of the documentation (Claude doesn't detect changes while it's running). But if you're just updating the code within a method then `pnpm deploy:worker` is enough.
+2. **Restart Claude Desktop** and start interacting with your API!
 
-## How it works
+## Examples
 
-Separately to your MCP code inside `src/index.ts`, there are three pieces required to make this work:
+This repository includes a complete example of a Petstore API server that you can use to test the OpenAPI MCP Server. The example server implements a basic CRUD API for managing pets, making it perfect for learning how to use this tool.
 
-### 1. Docs generation: `scripts/generate-docs.ts`
+See [examples/README.md](examples/README.md) for instructions on running the example server.
 
-The [MCP Specification](https://spec.modelcontextprotocol.io/specification/server/tools/#listing-tools) separates the `tools/list` and `tools/call` operations into separate steps, and most MCP servers have naturally followed suit and separated their schema definition from the implementation. However, combining them provides a much better DX for the author.
+## Use Cases
 
-I'm using [ts-blank-space](https://github.com/bloomberg/ts-blank-space) and [jsdoc-api](https://www.npmjs.com/package/jsdoc-api) to parse the TS and emit the schema, slightly tweaked. This gives you LLM-friendly documentation at build time:
+1. **Local Development**
+   - Test your APIs through natural conversation
+   - Debug endpoints without writing code
+   - Explore API capabilities interactively
 
-```ts
-/**
- * Send a text or HTML email to an arbitrary recipient.
- *
- * @param {string} recipient - The email address of the recipient.
- * @param {string} subject - The subject of the email.
- * @param {string} contentType - The content type of the email. Can be text/plain or text/html
- * @param {string} body - The body of the email. Must match the provided contentType parameter
- * @return {Promise<string>} A success message.
- * @throws {Error} If the email fails to send, or if that destination email address hasn't been verified.
- */
-async sendEmail(recipient: string, subject: string, contentType: string, body: string) {
-  // ...
-}
-```
+2. **API Integration**
+   - Quickly test third-party APIs
+   - Prototype integrations before writing code
+   - Learn new APIs through conversation
 
-```json
-{
-  "ExampleWorkerMCP": {
-    "exported_as": "ExampleWorkerMCP",
-    "description": null,
-    "methods": [
-      {
-        "name": "sendEmail",
-        "description": "Send a text or HTML email to an arbitrary recipient.",
-        "params": [
-          {
-            "description": "The email address of the recipient.",
-            "name": "recipient",
-            "type": "string"
-          },
-          {
-            "description": "The subject of the email.",
-            "name": "subject",
-            "type": "string"
-          },
-          {
-            "description": "The content type of the email. Can be text/plain or text/html",
-            "name": "contentType",
-            "type": "string"
-          },
-          {
-            "description": "The body of the email. Must match the provided contentType parameter",
-            "name": "body",
-            "type": "string"
-          }
-        ],
-        "returns": {
-          "description": "A success message.",
-          "type": "Promise.<string>"
-        }
-      }
-    ]
-  }
-}
-```
-
-This list of methods is very similar to the required MCP format for `tools/list`, but also gives us a list of the `WorkerEntrypoint` exports names to look up our service bindings later.
-
-To iterate on your docs, run `pnpm generate:docs:watch` and you'll see the output change as you tweak your JSDoc in your `src/index.ts` (you'll need [watchexec](https://github.com/watchexec/watchexec) installed).
-
-## 2. Public HTTP handler: `lib/WorkerMCP.ts`
-
-Since our `WorkerEntrypoint` is not directly accessible, we need something that defines a default export with a `fetch()` handler. This is what `lib/WorkerMCP.ts` does.
-
-This exposes a single endpoint, `/rpc`, which takes a JSON payload of `{ method: string, args?: any[] }`, then calls that method on your `WorkerEntrypoint`.
-
-### 3. Local MCP proxy: `scripts/local-proxy.ts`
-
-This file uses the `@modelcontextprotocol/sdk` library to build up a normal, local MCP server. This responds to `tools/list` by producing the data from `docs.json` for the specified entrypoint.
-
-On `tools/call`, a `.fetch` call is made to the remote worker on the `/rpc` route, providing a `Bearer` token with the contents of `generated/.shared-secret`. The responses are then piped back to Claude.
-
-Calling `pnpm install:claude <server-alias> <worker-url>` adds a sever definition that points to this file in your `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "<server-alias>": {
-      "command": "<absolute-path-to>/node",
-      "args": [
-        "<project-dir>/node_modules/tsx/dist/cli.mjs",
-        "<project-dir>/scripts/local-proxy.ts",
-        "<server-alias>",
-        "<worker-url>",
-        "<entrypoint-name>"
-      ]
-    }
-  }
-}
-```
-
-In this way you can install as many of these as you like, as long as they each have a distinct `<server-alias>`.
+3. **Documentation**
+   - Ask questions about API endpoints
+   - Get examples of how to use endpoints
+   - Understand error conditions
 
 ## Limitations
 
-There are lots. This pizza is straight out of the oven. You may well burn your mouth.
+- Currently supports OpenAPI v3.1 specs only
+- Response handling is optimized for JSON/text responses
+- File uploads not yet supported
+- Streaming responses not yet implemented
 
-1. `docs.json` is only generated from `src/index.ts`. It doesn't currently crawl imports like a bundler, because no bundler I could find preserved comments in-place in order for me to run the docs generator afterwards.
-2. Documentation generation only works for class exports. It can, at least, parse `class X {}; export { X as Y }`, but in general most people do `export default class X {}` anyway so this is fine for now.
-3. The local proxy <-> remote proxy communication doesn't follow any particular RPC spec, but it probably should.
-4. Error handling, non-text return values, streaming responses, etc have not really been thought through but do sorta work.
-5. No `wrangler dev` support yet, but `wrangler dev --remote` should be possible so you don't have to deploy so often
-6. Following on from the above, the spec includes a [`notifications/tools/list_changed` notification](https://spec.modelcontextprotocol.io/specification/server/tools/#list-changed-notification) that should trigger Claude to refresh its list of the tools available, meaning fewer restarts of Claude Desktop. But I haven't implemented that yet.
-7. The docs parsing doesn't yet use TS types to either augment or replace the need for `@param` blocks in the JSDoc
-8. The doc generation might be completely superfluous if someone was using a validator like zod or a schema library like typebox. However, I wanted build-time docs generation (i.e. static extraction) and wanted to be as generic as possible, so JSDoc will do for now.
+## Development
 
-## Future ideas
+Outstanding tasks are listed in [TODO.md](TODO.md).
 
-Obviously, having Claude Desktop talk directly to the Worker would be ideal. Also, `wrangler dev --remote` support would be great: you could iterate on your worker without redeploying, but still access your production bindings.
+Basics:
+```bash
+# Install dependencies
+pnpm install
 
-The docs generator needs to be extracted into a library so we can publish changes, as it needs to grow in scope to be really useful, and likely incorporate other sources of data (`d.ts` files, zod schemas, etc).
+# Run tests
+pnpm test
 
-## Feedback & Contributions
+# Build the project
+pnpm build
 
-Give it a try! Then, raise an issue or send a PR . This is all very new, so it could really go in a lot of different directions. We'd love to hear from you!
+# Start in development mode
+pnpm dev
+```
+
+## License
+
+MIT
+
+---
+
+Built with ❤️ for making APIs more accessible through natural language.

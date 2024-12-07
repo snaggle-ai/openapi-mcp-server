@@ -1,9 +1,11 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js'
 import {
   CallToolRequestSchema,
+  JSONRPCResponse,
   ListToolsRequestSchema,
-  Tool
+  Tool,
 } from '@modelcontextprotocol/sdk/types.js'
+import { JSONSchema7 as IJsonSchema } from 'json-schema'
 import { OpenAPIToMCPConverter } from '../openapi/parser'
 import { HttpClient } from '../client/http-client'
 import { OpenAPIV3 } from 'openapi-types'
@@ -17,28 +19,20 @@ type PathItemObject = OpenAPIV3.PathItemObject & {
   patch?: OpenAPIV3.OperationObject
 }
 
-type ToolDefinition = {
+type NewToolDefinition = { 
   methods: Array<{
-    name: string
-    description: string
-    params: Array<{
-      name: string
-      type: string
-      description: string
-      optional?: boolean
-    }>
-    returns?: {
-      type: string
-      description: string
-    } | null
+    name: string;
+    description: string;
+    inputSchema: IJsonSchema & { type: 'object' };
+    returnSchema?: IJsonSchema;
   }>
-}
+};
 
 export class MCPProxy {
   private server: Server
   private httpClient: HttpClient
   private openApiSpec: OpenAPIV3.Document
-  private tools: Record<string, ToolDefinition>
+  private tools: Record<string, NewToolDefinition>
   private openApiLookup: Record<string, OpenAPIV3.OperationObject & { method: string, path: string }>
 
   constructor(
@@ -68,35 +62,15 @@ export class MCPProxy {
   private setupHandlers() {
     // Handle tool listing
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      const tools: Tool[] = Object.entries(this.tools).map(([name, def]) => ({
-        name,
-        description: 'OpenAPI-based tools',
-        inputSchema: {
-          type: 'object',
-          properties: {},  // Each tool itself doesn't need properties, its methods do
-        }
-      }));
+      const tools: Tool[] = [];
 
       // Add methods as separate tools to match the MCP format
       Object.entries(this.tools).forEach(([toolName, def]) => {
         def.methods.forEach(method => {
           tools.push({
-            // TODO: Claude has some requirements on names not having non alphaneumeric characters + underscore and hyphers
             name: `${toolName}-${method.name}`,
             description: method.description,
-            inputSchema: {
-              type: 'object',
-              properties: method.params.reduce((acc, param) => ({
-                ...acc,
-                [param.name]: {
-                  type: param.type,
-                  description: param.description
-                }
-              }), {}),
-              required: method.params
-                .filter(param => !param.optional)
-                .map(param => param.name)
-            }
+            inputSchema: method.inputSchema as Tool['inputSchema']
           });
         });
       });

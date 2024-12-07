@@ -18,7 +18,8 @@ export class HttpClient {
   private client: OpenAPIClientAxios
 
   constructor(private config: HttpClientConfig, private openApiSpec: OpenAPIV3.Document) {
-    this.client = new OpenAPIClientAxios({ 
+    // @ts-expect-error
+    this.client = new (OpenAPIClientAxios.default ?? OpenAPIClientAxios)({ 
       definition: openApiSpec,
       axiosConfigDefaults: {
         baseURL: config.baseUrl,
@@ -46,14 +47,43 @@ export class HttpClient {
       throw new Error('Operation ID is required')
     }
 
-    // Get the operation function from the generated client
+    // Separate parameters based on their location
+    const urlParameters: Record<string, any> = {}
+    const bodyParams: Record<string, any> = { ...params }
+
+    // Extract path and query parameters based on operation definition
+    if (operation.parameters) {
+      for (const param of operation.parameters) {
+        // TODO: do we need to be so thorough?
+        if ('name' in param && param.name && param.in) {
+          if (param.in === 'path' || param.in === 'query') {
+            if (params[param.name] !== undefined) {
+              urlParameters[param.name] = params[param.name]
+              delete bodyParams[param.name]
+            }
+          }
+        }
+      }
+    }
+
+    // Add all parameters as url parameters if there is no requestBody defined
+    if (!operation.requestBody) {
+      for (const key in bodyParams) {
+        if (bodyParams[key] !== undefined) {
+          urlParameters[key] = bodyParams[key]
+          delete bodyParams[key]
+        }
+      }
+    }
+
     const operationFn = (api as any)[operationId]
     if (!operationFn) {
       throw new Error(`Operation ${operationId} not found`)
     }
 
     try {
-      const response = await operationFn(params)
+      // first argument is url parameters, second is body parameters
+      const response = await operationFn(urlParameters, bodyParams);
       // Convert axios headers to Headers object
       const headers = new Headers()
       Object.entries(response.headers).forEach(([key, value]) => {

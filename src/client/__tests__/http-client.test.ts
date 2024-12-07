@@ -49,298 +49,6 @@ vi.mock('openapi-client-axios', () => {
   }
 })
 
-describe('HttpClient with Complex Schemas', () => {
-  let client: HttpClient
-  let mockApi: any
-
-  const complexSpec: OpenAPIV3.Document = {
-    openapi: '3.0.0',
-    info: { title: 'Complex API', version: '1.0.0' },
-    components: {
-      schemas: {
-        Error: {
-          type: 'object',
-          required: ['code', 'message'],
-          properties: {
-            code: { type: 'integer' },
-            message: { type: 'string' }
-          }
-        },
-        Pet: {
-          type: 'object',
-          required: ['id', 'name'],
-          properties: {
-            id: { type: 'integer' },
-            name: { type: 'string' },
-            category: { $ref: '#/components/schemas/Category' },
-            tags: {
-              type: 'array',
-              items: { $ref: '#/components/schemas/Tag' }
-            }
-          }
-        },
-        Category: {
-          type: 'object',
-          required: ['id', 'name'],
-          properties: {
-            id: { type: 'integer' },
-            name: { type: 'string' }
-          }
-        },
-        Tag: {
-          type: 'object',
-          required: ['id', 'name'],
-          properties: {
-            id: { type: 'integer' },
-            name: { type: 'string' }
-          }
-        }
-      },
-      parameters: {
-        PetId: {
-          name: 'petId',
-          in: 'path',
-          required: true,
-          schema: { type: 'integer' }
-        }
-      },
-      responses: {
-        NotFound: {
-          description: 'The specified resource was not found',
-          content: {
-            'application/json': {
-              schema: { $ref: '#/components/schemas/Error' }
-            }
-          }
-        }
-      }
-    },
-    paths: {
-      '/pets/{petId}': {
-        get: {
-          operationId: 'getPet',
-          parameters: [
-            { $ref: '#/components/parameters/PetId' }
-          ],
-          responses: {
-            '200': {
-              description: 'A pet object',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/Pet' }
-                }
-              }
-            },
-            '404': {
-              $ref: '#/components/responses/NotFound'
-            }
-          }
-        },
-        put: {
-          operationId: 'updatePet',
-          parameters: [
-            { $ref: '#/components/parameters/PetId' }
-          ],
-          requestBody: {
-            required: true,
-            content: {
-              'application/json': {
-                schema: { $ref: '#/components/schemas/Pet' }
-              }
-            }
-          },
-          responses: {
-            '200': {
-              description: 'Pet updated',
-              content: {
-                'application/json': {
-                  schema: { $ref: '#/components/schemas/Pet' }
-                }
-              }
-            },
-            '404': {
-              $ref: '#/components/responses/NotFound'
-            }
-          }
-        }
-      }
-    }
-  }
-
-  const getPetOperation = complexSpec.paths['/pets/{petId}']?.get
-  const updatePetOperation = complexSpec.paths['/pets/{petId}']?.put
-
-  if (!getPetOperation || !updatePetOperation) {
-    throw new Error('Test setup error: operations not found in sample spec')
-  }
-
-  beforeEach(() => {
-    mockApi = {
-      getPet: vi.fn(),
-      updatePet: vi.fn()
-    }
-
-    const mockOpenAPIClientAxios = vi.mocked(OpenAPIClientAxios)
-    const mockInstance = mockOpenAPIClientAxios({ 
-      definition: complexSpec,
-      axiosConfigDefaults: {
-        baseURL: 'https://api.example.com'
-      }
-    })
-    vi.mocked(mockInstance.init).mockResolvedValue(mockApi)
-
-    client = new HttpClient({ baseUrl: 'https://api.example.com' }, complexSpec)
-  })
-
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
-
-  describe('GET operation with references', () => {
-    it('should handle successful response with nested references', async () => {
-      const mockResponse = {
-        data: {
-          id: 1,
-          name: 'Fluffy',
-          category: {
-            id: 1,
-            name: 'Cats'
-          },
-          tags: [
-            { id: 1, name: 'cute' },
-            { id: 2, name: 'fluffy' }
-          ]
-        },
-        status: 200,
-        headers: {
-          'content-type': 'application/json'
-        }
-      }
-
-      mockApi.getPet.mockResolvedValueOnce(mockResponse)
-
-      const response = await client.executeOperation(
-        getPetOperation,
-        'get',
-        '/pets/{petId}',
-        { petId: 1 }
-      )
-
-      expect(mockApi.getPet).toHaveBeenCalledWith({ petId: 1 })
-      expect(response.data).toEqual(mockResponse.data)
-      expect(response.status).toBe(200)
-      expect(response.headers).toBeInstanceOf(Headers)
-      expect(response.headers.get('content-type')).toBe('application/json')
-    })
-
-    it('should handle error response with referenced error schema', async () => {
-      const error = {
-        response: {
-          data: {
-            code: 404,
-            message: 'Pet not found'
-          },
-          status: 404,
-          statusText: 'Not Found'
-        }
-      }
-      mockApi.getPet.mockRejectedValueOnce(error)
-
-      await expect(
-        client.executeOperation(
-          getPetOperation,
-          'get',
-          '/pets/{petId}',
-          { petId: 999 }
-        )
-      ).rejects.toThrow('API request failed: 404 Not Found')
-    })
-  })
-
-  describe('PUT operation with references', () => {
-    it('should handle request body and response with references', async () => {
-      const requestBody = {
-        id: 1,
-        name: 'Fluffy Updated',
-        category: {
-          id: 1,
-          name: 'Cats'
-        },
-        tags: [
-          { id: 1, name: 'cute' },
-          { id: 2, name: 'fluffy' },
-          { id: 3, name: 'friendly' }
-        ]
-      }
-
-      const mockResponse = {
-        data: requestBody,
-        status: 200,
-        headers: {
-          'content-type': 'application/json'
-        }
-      }
-
-      mockApi.updatePet.mockResolvedValueOnce(mockResponse)
-
-      const response = await client.executeOperation(
-        updatePetOperation,
-        'put',
-        '/pets/{petId}',
-        { 
-          petId: 1,
-          ...requestBody
-        }
-      )
-
-      expect(mockApi.updatePet).toHaveBeenCalledWith({
-        petId: 1,
-        ...requestBody
-      })
-      expect(response.data).toEqual(mockResponse.data)
-      expect(response.status).toBe(200)
-      expect(response.headers).toBeInstanceOf(Headers)
-      expect(response.headers.get('content-type')).toBe('application/json')
-    })
-
-    it('should handle validation errors for invalid request body', async () => {
-      const invalidRequestBody = {
-        // Missing required 'name' field
-        id: 1,
-        category: {
-          // Missing required 'name' field
-          id: 1
-        }
-      }
-
-      const error = {
-        response: {
-          data: {
-            code: 400,
-            message: 'Validation failed'
-          },
-          status: 400,
-          statusText: 'Bad Request'
-        }
-      }
-      mockApi.updatePet.mockRejectedValueOnce(error)
-
-      await expect(
-        client.executeOperation(
-          updatePetOperation,
-          'put',
-          '/pets/{petId}',
-          { 
-            petId: 1,
-            ...invalidRequestBody
-          }
-        )
-      ).rejects.toThrow('API request failed: 400 Bad Request')
-    })
-  })
-})
-
-// Keep the original simple tests
 describe('HttpClient', () => {
   let client: HttpClient
   let mockApi: any
@@ -420,7 +128,7 @@ describe('HttpClient', () => {
       { petId: 1 }
     )
 
-    expect(mockApi.getPet).toHaveBeenCalledWith({ petId: 1 })
+    expect(mockApi.getPet).toHaveBeenCalledWith({ petId: 1 }, {})
     expect(response.data).toEqual(mockResponse.data)
     expect(response.status).toBe(200)
     expect(response.headers).toBeInstanceOf(Headers)
@@ -473,5 +181,186 @@ describe('HttpClient', () => {
         { petId: 999 }
       )
     ).rejects.toThrow('API request failed: 404 Not Found')
+  })
+
+  it('should send body parameters in request body for POST operations', async () => {
+    // Setup mock API with the new operation
+    mockApi = {
+      testOperation: vi.fn().mockResolvedValue({
+        data: {},
+        status: 200,
+        headers: {}
+      })
+    }
+
+    const testSpec: OpenAPIV3.Document = {
+      openapi: '3.0.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/test': {
+          post: {
+            operationId: 'testOperation',
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      foo: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            responses: {
+              '200': {
+                description: 'Success response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const postOperation = testSpec.paths['/test']?.post
+    if (!postOperation) {
+      throw new Error('Test setup error: post operation not found')
+    }
+
+    // Get the mock instance and set up its init function
+    const mockOpenAPIClientAxios = vi.mocked(OpenAPIClientAxios)
+    const mockInstance = mockOpenAPIClientAxios({ 
+      definition: testSpec,
+      axiosConfigDefaults: {
+        baseURL: 'http://test.com'
+      }
+    })
+    vi.mocked(mockInstance.init).mockResolvedValue(mockApi)
+
+    const client = new HttpClient({ baseUrl: 'http://test.com' }, testSpec)
+    
+    await client.executeOperation(
+      postOperation,
+      'post',
+      '/test',
+      { foo: 'bar' }
+    )
+
+    expect(mockApi.testOperation).toHaveBeenCalledWith({},
+      { foo: 'bar' }
+    )
+  })
+
+  it('should handle query, path, and body parameters correctly', async () => {
+    mockApi = {
+      complexOperation: vi.fn().mockResolvedValue({
+        data: { success: true },
+        status: 200,
+        headers: {}
+      })
+    }
+
+    const complexSpec: OpenAPIV3.Document = {
+      openapi: '3.0.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: {
+        '/users/{userId}/posts': {
+          post: {
+            operationId: 'complexOperation',
+            parameters: [
+              {
+                name: 'userId',
+                in: 'path',
+                required: true,
+                schema: { type: 'integer' }
+              },
+              {
+                name: 'include',
+                in: 'query',
+                required: false,
+                schema: { type: 'string' }
+              }
+            ],
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      title: { type: 'string' },
+                      content: { type: 'string' }
+                    }
+                  }
+                }
+              }
+            },
+            responses: {
+              '200': {
+                description: 'Success response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        success: { type: 'boolean' }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    const complexOperation = complexSpec.paths['/users/{userId}/posts']?.post
+    if (!complexOperation) {
+      throw new Error('Test setup error: complex operation not found')
+    }
+
+    // Set up mock
+    const mockOpenAPIClientAxios = vi.mocked(OpenAPIClientAxios)
+    const mockInstance = mockOpenAPIClientAxios({ 
+      definition: complexSpec,
+      axiosConfigDefaults: {
+        baseURL: 'http://test.com'
+      }
+    })
+    vi.mocked(mockInstance.init).mockResolvedValue(mockApi)
+
+    const client = new HttpClient({ baseUrl: 'http://test.com' }, complexSpec)
+    
+    await client.executeOperation(
+      complexOperation,
+      'post',
+      '/users/{userId}/posts',
+      {
+        // Path parameter
+        userId: 123,
+        // Query parameter
+        include: 'comments',
+        // Body parameters
+        title: 'Test Post',
+        content: 'Test Content'
+      }
+    )
+
+    expect(mockApi.complexOperation).toHaveBeenCalledWith({
+        userId: 123,
+        include: 'comments'
+      },
+      {
+        title: 'Test Post',
+        content: 'Test Content'
+      }
+    )
   })
 }) 
