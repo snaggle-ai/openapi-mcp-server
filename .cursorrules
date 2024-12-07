@@ -1,0 +1,9 @@
+This is a typescript project.
+
+pnpm is the package manager.
+
+Add tests to `__tests__` folders proximate to the code they are testing.
+
+Where possible practice TDD (Test Driven Development) and write tests before writing code to address a given task.
+
+Run tests with `pnpm test`.

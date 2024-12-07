@@ -1,0 +1,848 @@
+{
+  "servers": [
+    {
+      "url": "https://ba4d8125-91e3-402e-8041-1ac825d3a3da-00-1p96pqe01w7ko.kirk.replit.dev"
+    }
+  ],
+  "openapi": "3.1.0",
+  "info": {
+    "title": "eBay Service API",
+    "version": "1.0.0",
+    "description": "API for managing eBay listings and categories"
+  },
+  "components": {
+    "schemas": {},
+    "parameters": {}
+  },
+  "paths": {
+    "/api/ebay/categories/top-level": {
+      "get": {
+        "summary": "Get top-level eBay categories",
+        "tags": [
+          "Categories"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "siteId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EBAY_AT",
+                "EBAY_AU",
+                "EBAY_BE",
+                "EBAY_CA",
+                "EBAY_CH",
+                "EBAY_CN",
+                "EBAY_CZ",
+                "EBAY_DE",
+                "EBAY_DK",
+                "EBAY_ES",
+                "EBAY_FI",
+                "EBAY_FR",
+                "EBAY_GB",
+                "EBAY_GR",
+                "EBAY_HK",
+                "EBAY_HU",
+                "EBAY_ID",
+                "EBAY_IE",
+                "EBAY_IL",
+                "EBAY_IN",
+                "EBAY_IT",
+                "EBAY_JP",
+                "EBAY_MY",
+                "EBAY_NL",
+                "EBAY_NO",
+                "EBAY_NZ",
+                "EBAY_PE",
+                "EBAY_PH",
+                "EBAY_PL",
+                "EBAY_PR",
+                "EBAY_PT",
+                "EBAY_RU",
+                "EBAY_SE",
+                "EBAY_SG",
+                "EBAY_TH",
+                "EBAY_TW",
+                "EBAY_US",
+                "EBAY_VN",
+                "EBAY_ZA",
+                "EBAY_MOTORS_US"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of top-level categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success",
+                        "error"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Category ID"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Category name"
+                          },
+                          "level": {
+                            "type": "number",
+                            "description": "Category level in hierarchy"
+                          },
+                          "parentId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Parent category ID"
+                          },
+                          "isLeaf": {
+                            "type": "boolean",
+                            "description": "Whether this is a leaf category"
+                          },
+                          "fullPath": {
+                            "type": "string"
+                          },
+                          "parentIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "level",
+                          "parentId",
+                          "isLeaf"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get_api_ebay_categories_top_level"
+      }
+    },
+    "/api/ebay/categories/leaves/{categoryId}": {
+      "get": {
+        "summary": "Get leaf categories for a specific category",
+        "tags": [
+          "Categories"
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "siteId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EBAY_AT",
+                "EBAY_AU",
+                "EBAY_BE",
+                "EBAY_CA",
+                "EBAY_CH",
+                "EBAY_CN",
+                "EBAY_CZ",
+                "EBAY_DE",
+                "EBAY_DK",
+                "EBAY_ES",
+                "EBAY_FI",
+                "EBAY_FR",
+                "EBAY_GB",
+                "EBAY_GR",
+                "EBAY_HK",
+                "EBAY_HU",
+                "EBAY_ID",
+                "EBAY_IE",
+                "EBAY_IL",
+                "EBAY_IN",
+                "EBAY_IT",
+                "EBAY_JP",
+                "EBAY_MY",
+                "EBAY_NL",
+                "EBAY_NO",
+                "EBAY_NZ",
+                "EBAY_PE",
+                "EBAY_PH",
+                "EBAY_PL",
+                "EBAY_PR",
+                "EBAY_PT",
+                "EBAY_RU",
+                "EBAY_SE",
+                "EBAY_SG",
+                "EBAY_TH",
+                "EBAY_TW",
+                "EBAY_US",
+                "EBAY_VN",
+                "EBAY_ZA",
+                "EBAY_MOTORS_US"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of leaf categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success",
+                        "error"
+                      ]
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Category ID"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Category name"
+                          },
+                          "level": {
+                            "type": "number",
+                            "description": "Category level in hierarchy"
+                          },
+                          "parentId": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "Parent category ID"
+                          },
+                          "isLeaf": {
+                            "type": "boolean",
+                            "description": "Whether this is a leaf category"
+                          },
+                          "fullPath": {
+                            "type": "string"
+                          },
+                          "parentIds": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "level",
+                          "parentId",
+                          "isLeaf"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get_api_ebay_categories_leaves__categoryId"
+      }
+    },
+    "/api/ebay/listings/auction": {
+      "post": {
+        "summary": "Create a new auction listing",
+        "tags": [
+          "Listings"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "description": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "conditionId": {
+                    "type": "number"
+                  },
+                  "buyItNowPrice": {
+                    "type": "number"
+                  },
+                  "categoryId": {
+                    "type": "string"
+                  },
+                  "startPrice": {
+                    "type": "number",
+                    "exclusiveMinimum": 0
+                  },
+                  "listingDuration": {
+                    "type": "string",
+                    "default": "Days_7"
+                  },
+                  "shippingCost": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "postalCode": {
+                    "type": "string"
+                  },
+                  "dispatchTimeMax": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                  },
+                  "images": {
+                    "type": "object",
+                    "properties": {
+                      "base64": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "urls": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "uri"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "title",
+                  "description",
+                  "categoryId",
+                  "startPrice",
+                  "shippingCost",
+                  "postalCode",
+                  "dispatchTimeMax"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Auction listing created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "itemId": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": "string"
+                        },
+                        "startTime": {
+                          "type": "string"
+                        },
+                        "endTime": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "itemId",
+                        "title",
+                        "startTime",
+                        "endTime"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "post_api_ebay_listings_auction",
+        "x-openai-isConsequential": false
+      }
+    },
+    "/api/ebay/categories/conditions/{categoryId}": {
+      "get": {
+        "summary": "Get item condition policies for a specific category",
+        "tags": [
+          "Categories"
+        ],
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "marketplaceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "EBAY_AT",
+                "EBAY_AU",
+                "EBAY_BE",
+                "EBAY_CA",
+                "EBAY_CH",
+                "EBAY_CN",
+                "EBAY_CZ",
+                "EBAY_DE",
+                "EBAY_DK",
+                "EBAY_ES",
+                "EBAY_FI",
+                "EBAY_FR",
+                "EBAY_GB",
+                "EBAY_GR",
+                "EBAY_HK",
+                "EBAY_HU",
+                "EBAY_ID",
+                "EBAY_IE",
+                "EBAY_IL",
+                "EBAY_IN",
+                "EBAY_IT",
+                "EBAY_JP",
+                "EBAY_MY",
+                "EBAY_NL",
+                "EBAY_NO",
+                "EBAY_NZ",
+                "EBAY_PE",
+                "EBAY_PH",
+                "EBAY_PL",
+                "EBAY_PR",
+                "EBAY_PT",
+                "EBAY_RU",
+                "EBAY_SE",
+                "EBAY_SG",
+                "EBAY_TH",
+                "EBAY_TW",
+                "EBAY_US",
+                "EBAY_VN",
+                "EBAY_ZA",
+                "EBAY_MOTORS_US"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item condition policies for the category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "categoryId": {
+                          "type": "string",
+                          "description": "The category ID"
+                        },
+                        "categoryName": {
+                          "type": "string",
+                          "description": "The name of the category"
+                        },
+                        "conditionDescriptors": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "description": "The condition ID"
+                              },
+                              "name": {
+                                "type": "string",
+                                "description": "The condition name"
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Optional description of the condition"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name"
+                            ]
+                          }
+                        }
+                      },
+                      "required": [
+                        "categoryId",
+                        "categoryName",
+                        "conditionDescriptors"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get_api_ebay_categories__categoryId__conditions"
+      }
+    },
+    "/api/images/upload": {
+      "post": {
+        "summary": "Upload images and get back their URLs",
+        "tags": [
+          "Images"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "body": {
+                    "type": "object",
+                    "properties": {
+                      "images": {
+                        "type": "object",
+                        "properties": {
+                          "base64": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "minItems": 1
+                          }
+                        },
+                        "required": [
+                          "base64"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "images"
+                    ]
+                  }
+                },
+                "required": [
+                  "body"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Images uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success"
+                      ]
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "urls": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uri"
+                          }
+                        }
+                      },
+                      "required": [
+                        "urls"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "data"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error"
+                      ]
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "error": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "operationId": "post_api_images_upload",
+        "x-openai-isConsequential": false
+      }
+    }
+  }
+}
