@@ -4,6 +4,8 @@
 
 This tool creates a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that acts as a proxy for any API that has an OpenAPI v3.1 specification. This allows you to use Claude Desktop to easily interact with both local and remote server APIs.
 
+If you're having trouble with Claude crashing or specs not working put them through our [spec cleaner app](https://open-api-spec-cleaner.replit.app/) this tidies up some open api schemas to help them be LLM-readable.
+
 ## What does it do?
 
 This proxy automatically converts OpenAPI endpoints into Claude tools, allowing Claude to:
