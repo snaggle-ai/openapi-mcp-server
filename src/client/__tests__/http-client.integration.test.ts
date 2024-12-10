@@ -51,9 +51,7 @@ describe('HttpClient Integration Tests', () => {
     if (!operation) throw new Error('Operation not found')
 
     const response = await client.executeOperation<Pet[]>(
-      operation,
-      'GET',
-      '/pets'
+      operation
     )
 
     expect(response.status).toBe(200)
@@ -70,8 +68,6 @@ describe('HttpClient Integration Tests', () => {
 
     const response = await client.executeOperation<Pet[]>(
       operation,
-      'GET',
-      '/pets',
       { status: 'available' }
     )
 
@@ -88,8 +84,6 @@ describe('HttpClient Integration Tests', () => {
 
     const response = await client.executeOperation<Pet>(
       operation,
-      'GET',
-      '/pets/{id}',
       { id: 1 }
     )
 
@@ -111,8 +105,6 @@ describe('HttpClient Integration Tests', () => {
 
     const response = await client.executeOperation<Pet>(
       operation,
-      'POST',
-      '/pets',
       newPet
     )
 
@@ -130,8 +122,6 @@ describe('HttpClient Integration Tests', () => {
 
     const response = await client.executeOperation<Pet>(
       operation,
-      'PUT',
-      '/pets/{id}',
       {
         id: 1,
         status: 'sold'
@@ -150,8 +140,6 @@ describe('HttpClient Integration Tests', () => {
 
     const createResponse = await client.executeOperation<Pet>(
       createOperation,
-      'POST',
-      '/pets',
       {
         name: 'ToDelete',
         species: 'Cat',
@@ -166,8 +154,6 @@ describe('HttpClient Integration Tests', () => {
 
     const deleteResponse = await client.executeOperation(
       deleteOperation,
-      'DELETE',
-      '/pets/{id}',
       { id: petId }
     )
 
@@ -180,8 +166,6 @@ describe('HttpClient Integration Tests', () => {
     try {
       await client.executeOperation(
         getOperation,
-        'GET',
-        '/pets/{id}',
         { id: petId }
       )
       throw new Error('Should not reach here')
@@ -197,8 +181,6 @@ describe('HttpClient Integration Tests', () => {
     try {
       await client.executeOperation(
         operation,
-        'GET',
-        '/pets/{id}',
         { id: 99999 } // Non-existent ID
       )
       throw new Error('Should not reach here')

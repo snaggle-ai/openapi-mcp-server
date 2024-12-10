@@ -173,3 +173,4 @@ dist
 /tmp
 .shared-secret
 .DS_Store
+examples/uploads

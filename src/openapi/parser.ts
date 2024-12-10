@@ -77,16 +77,24 @@ export class OpenAPIToMCPConverter {
       result.type = schema.type as IJsonSchema['type']
     }
 
-    if (schema.description) {
-      result.description = schema.description
+    // Convert binary format to uri-reference and enhance description
+    if (schema.format === 'binary') {
+      result.format = 'uri-reference'
+      const binaryDesc = 'absolute paths to local files'
+      result.description = schema.description 
+        ? `${schema.description} (${binaryDesc})`
+        : binaryDesc
+    } else {
+      if (schema.format) {
+        result.format = schema.format
+      }
+      if (schema.description) {
+        result.description = schema.description
+      }
     }
 
     if (schema.enum) {
       result.enum = schema.enum
-    }
-
-    if (schema.format) {
-      result.format = schema.format
     }
 
     if (schema.default !== undefined) {
@@ -114,7 +122,7 @@ export class OpenAPIToMCPConverter {
       }
     }
 
-    // Handle arrays
+    // Handle arrays - ensure binary format conversion happens for array items too
     if (schema.type === 'array' && schema.items) {
       result.type = 'array'
       result.items = this.convertOpenApiSchemaToJsonSchema(schema.items)
@@ -258,20 +266,37 @@ export class OpenAPIToMCPConverter {
     // Handle requestBody
     if (operation.requestBody) {
       const bodyObj = this.resolveRequestBody(operation.requestBody)
-      if (bodyObj?.content?.['application/json']?.schema) {
-        const bodySchema = this.convertOpenApiSchemaToJsonSchema(bodyObj.content['application/json'].schema)
-        // Merge body schema into the inputSchema's properties
-        if (bodySchema.type === 'object' && bodySchema.properties) {
-          for (const [name, propSchema] of Object.entries(bodySchema.properties)) {
-            inputSchema.properties![name] = propSchema
+      if (bodyObj?.content) {
+        // Handle multipart/form-data for file uploads
+        // We convert the multipart/form-data schema to a JSON schema and we require
+        // that the user passes in a string for each file that points to the local file
+        if (bodyObj.content['multipart/form-data']?.schema) {
+          const formSchema = this.convertOpenApiSchemaToJsonSchema(bodyObj.content['multipart/form-data'].schema)
+          if (formSchema.type === 'object' && formSchema.properties) {
+            for (const [name, propSchema] of Object.entries(formSchema.properties)) {
+              inputSchema.properties![name] = propSchema
+            }
+            if (formSchema.required) {
+              inputSchema.required!.push(...formSchema.required!)
+            }
           }
-          if (bodySchema.required) {
-            inputSchema.required!.push(...bodySchema.required!)
+        }
+        // Handle application/json
+        else if (bodyObj.content['application/json']?.schema) {
+          const bodySchema = this.convertOpenApiSchemaToJsonSchema(bodyObj.content['application/json'].schema)
+          // Merge body schema into the inputSchema's properties
+          if (bodySchema.type === 'object' && bodySchema.properties) {
+            for (const [name, propSchema] of Object.entries(bodySchema.properties)) {
+              inputSchema.properties![name] = propSchema
+            }
+            if (bodySchema.required) {
+              inputSchema.required!.push(...bodySchema.required!)
+            }
+          } else {
+            // If the request body is not an object, just put it under "body"
+            inputSchema.properties!['body'] = bodySchema
+            inputSchema.required!.push('body')
           }
-        } else {
-          // If the request body is not an object, just put it under "body"
-          inputSchema.properties!['body'] = bodySchema
-          inputSchema.required!.push('body')
         }
       }
     }

@@ -11,3 +11,5 @@ Run tests with `pnpm test`.
 Even if you think you've fixed everything, always run `pnpm build` and `pnpm test` to be sure that everything is working before reporting that you're done.
 
 We use vitest for testing. Do not use Jest or anything else.
+
+When updating README.md keep the tone pragmatic and low key, avoid corporate or marketing speak. Be clear, concise, and to the point, try to practice "show don't tell".

@@ -7,7 +7,7 @@ import {
 } from '@modelcontextprotocol/sdk/types.js'
 import { JSONSchema7 as IJsonSchema } from 'json-schema'
 import { OpenAPIToMCPConverter } from '../openapi/parser'
-import { HttpClient } from '../client/http-client'
+import { HttpClient, HttpClientError } from '../client/http-client'
 import { OpenAPIV3 } from 'openapi-types'
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js'
 
@@ -31,7 +31,6 @@ type NewToolDefinition = {
 export class MCPProxy {
   private server: Server
   private httpClient: HttpClient
-  private openApiSpec: OpenAPIV3.Document
   private tools: Record<string, NewToolDefinition>
   private openApiLookup: Record<string, OpenAPIV3.OperationObject & { method: string, path: string }>
 
@@ -48,7 +47,6 @@ export class MCPProxy {
       throw new Error('No base URL found in OpenAPI spec');
     }
     this.httpClient = new HttpClient({ baseUrl }, openApiSpec)
-    this.openApiSpec = openApiSpec
     
     // Convert OpenAPI spec to MCP tools
     const converter = new OpenAPIToMCPConverter(openApiSpec)
@@ -90,25 +88,40 @@ export class MCPProxy {
         throw new Error(`Method ${name} not found`)
       }
 
-      // Execute the operation
-      const method = operation.method
-      const path = operation.path
-      const response = await this.httpClient.executeOperation(
-        operation,
-        method,
-        path,
-        params
-      )
+      try{
+        // Execute the operation
+        const response = await this.httpClient.executeOperation(
+          operation,
+          params
+        )
 
-      // Convert response to MCP format
-      return {
-        content: [
-          {
-            type: this.getContentType(response.headers),
-            [this.getContentType(response.headers) === 'text' ? 'text' : 'data']:
-              typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-          }
-        ]
+        // Convert response to MCP format
+        return {
+          content: [
+            {
+              type: 'text', // currently this is the only type that seems to be used by mcp server
+              text: JSON.stringify(response.data) // TODO: pass through the http status code text?
+            }
+          ]
+        };
+      } catch (error) {
+        console.error('Error in tool call', error);
+        if(error instanceof HttpClientError) {
+          console.error('HttpClientError encountered, returning structured error', error)
+          const data = error.data?.response?.data ?? error.data ?? {};
+          return {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({
+                  status: "error", // TODO: get this from http status code?
+                  ...(typeof data === 'object' ? data : { data: data }),
+                })
+              }
+            ]
+          };
+        }
+        throw error;
       }
     })
   }

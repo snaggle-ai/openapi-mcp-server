@@ -8,7 +8,7 @@ This is a simple example API server that implements a basic pet store. It's usef
 
 ```bash
 # Install dependencies
-npm install express
+pnpm install
 
 # Start the server
 node examples/petstore-server.cjs
@@ -16,11 +16,23 @@ node examples/petstore-server.cjs
 
 The server will start on http://localhost:3000 with the following endpoints:
 
+### Basic CRUD Operations
 - GET /pets - List all pets
 - GET /pets/{id} - Get a specific pet
 - POST /pets - Create a new pet
 - PUT /pets/{id} - Update a pet's status
 - DELETE /pets/{id} - Delete a pet
+
+### File Upload Operations
+- POST /pets/{id}/photos - Upload a single photo for a pet
+  - Accepts JPEG, PNG, or GIF files up to 5MB
+  - Returns a URL to access the uploaded photo
+  - Example: `curl -F "photo=@/path/to/photo.jpg" http://localhost:3000/pets/1/photos`
+
+- POST /pets/{id}/documents - Upload multiple documents for a pet
+  - Upload up to 5 files in a single request
+  - Returns URLs for all uploaded files
+  - Example: `curl -F "documents=@doc1.jpg" -F "documents=@doc2.jpg" http://localhost:3000/pets/1/documents`
 
 The OpenAPI specification is available at http://localhost:3000/openapi.json
 
@@ -43,4 +55,40 @@ The OpenAPI specification is available at http://localhost:3000/openapi.json
    - "Can you show me all the available pets?"
    - "Can you add a new pet named Rover?"
    - "Please mark Rover as sold"
-   - "Delete Rover :-("
+   - "Upload a photo of Rover from ~/Pictures/rover.jpg"
+   - "Upload these documents for Rover: ~/Documents/medical.pdf and ~/Documents/adoption.pdf"
+
+## File Upload Details
+
+The server stores uploaded files in an `uploads` directory and serves them via HTTP. Some important details:
+
+- File size limit: 5MB per file
+- Supported image formats: JPEG, PNG, GIF
+- Files are stored with unique names to prevent conflicts
+- Files are automatically cleaned up if the pet ID is invalid
+- URLs are returned for immediate access to uploaded files
+
+Example response for a photo upload:
+```json
+{
+  "message": "Photo uploaded successfully",
+  "photoUrl": "http://localhost:3000/uploads/photo-1234567890.jpg"
+}
+```
+
+Example response for document uploads:
+```json
+{
+  "message": "Documents uploaded successfully",
+  "files": [
+    {
+      "originalName": "medical.pdf",
+      "url": "http://localhost:3000/uploads/documents-1234567890.pdf"
+    },
+    {
+      "originalName": "adoption.pdf",
+      "url": "http://localhost:3000/uploads/documents-0987654321.pdf"
+    }
+  ]
+}
+```

@@ -1,6 +1,9 @@
 import { OpenAPIV3 } from 'openapi-types'
 import OpenAPIClientAxios from 'openapi-client-axios'
 import { AxiosInstance } from 'axios'
+import FormData from 'form-data'
+import fs from 'fs'
+import { isFileUploadParameter } from '../openapi/file-upload'
 
 export type HttpClientConfig = {
   baseUrl: string
@@ -11,6 +14,18 @@ export type HttpClientResponse<T = any> = {
   data: T
   status: number
   headers: Headers
+}
+
+export class HttpClientError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public data: any,
+    public headers?: Headers
+  ) {
+    super(`${status} ${message}`)
+    this.name = 'HttpClientError'
+  }
 }
 
 export class HttpClient {
@@ -32,13 +47,42 @@ export class HttpClient {
     this.api = this.client.init()
   }
 
+  private async prepareFileUpload(operation: OpenAPIV3.OperationObject, params: Record<string, any>): Promise<FormData | null> {
+    const fileParams = isFileUploadParameter(operation)
+    if (fileParams.length === 0) return null
+
+    const formData = new FormData()
+    
+    // Handle file uploads
+    for (const param of fileParams) {
+      const filePath = params[param]
+      if (!filePath || typeof filePath !== 'string') {
+        throw new Error(`File path must be provided for parameter: ${param}`)
+      }
+      
+      try {
+        const fileStream = fs.createReadStream(filePath)
+        formData.append(param, fileStream)
+      } catch (error) {
+        throw new Error(`Failed to read file at ${filePath}: ${error}`)
+      }
+    }
+
+    // Add non-file parameters to form data
+    for (const [key, value] of Object.entries(params)) {
+      if (!fileParams.includes(key)) {
+        formData.append(key, value)
+      }
+    }
+
+    return formData
+  }
+
   /**
    * Execute an OpenAPI operation
    */
   async executeOperation<T = any>(
     operation: OpenAPIV3.OperationObject,
-    method: string,
-    path: string,
     params: Record<string, any> = {}
   ): Promise<HttpClientResponse<T>> {
     const api = await this.api
@@ -47,19 +91,23 @@ export class HttpClient {
       throw new Error('Operation ID is required')
     }
 
+    // Handle file uploads if present
+    const formData = await this.prepareFileUpload(operation, params)
+    
     // Separate parameters based on their location
     const urlParameters: Record<string, any> = {}
-    const bodyParams: Record<string, any> = { ...params }
+    const bodyParams: Record<string, any> = formData || { ...params }
 
     // Extract path and query parameters based on operation definition
     if (operation.parameters) {
       for (const param of operation.parameters) {
-        // TODO: do we need to be so thorough?
         if ('name' in param && param.name && param.in) {
           if (param.in === 'path' || param.in === 'query') {
             if (params[param.name] !== undefined) {
               urlParameters[param.name] = params[param.name]
-              delete bodyParams[param.name]
+              if (!formData) {
+                delete bodyParams[param.name]
+              }
             }
           }
         }
@@ -67,7 +115,7 @@ export class HttpClient {
     }
 
     // Add all parameters as url parameters if there is no requestBody defined
-    if (!operation.requestBody) {
+    if (!operation.requestBody && !formData) {
       for (const key in bodyParams) {
         if (bodyParams[key] !== undefined) {
           urlParameters[key] = bodyParams[key]
@@ -82,22 +130,42 @@ export class HttpClient {
     }
 
     try {
+      // If we have form data, we need to set the correct headers
+      const headers = formData ? formData.getHeaders() : { 'Content-Type': 'application/json' }
+      const requestConfig = {
+        headers: {
+          ...headers
+        }
+      }
+
       // first argument is url parameters, second is body parameters
-      const response = await operationFn(urlParameters, bodyParams);
+      const response = await operationFn(urlParameters, bodyParams, requestConfig)
+      
       // Convert axios headers to Headers object
-      const headers = new Headers()
+      const responseHeaders = new Headers()
       Object.entries(response.headers).forEach(([key, value]) => {
-        if (value) headers.append(key, value.toString())
+        if (value) responseHeaders.append(key, value.toString())
       })
       
       return {
         data: response.data,
         status: response.status,
-        headers
+        headers: responseHeaders
       }
     } catch (error: any) {
       if (error.response) {
-        throw new Error(`API request failed: ${error.response.status} ${error.response.statusText}`)
+        console.error('Error in http client', error)
+        const headers = new Headers()
+        Object.entries(error.response.headers).forEach(([key, value]) => {
+          if (value) headers.append(key, value.toString())
+        })
+
+        throw new HttpClientError(
+          error.response.statusText || 'Request failed',
+          error.response.status,
+          error.response.data,
+          headers
+        )
       }
       throw error
     }

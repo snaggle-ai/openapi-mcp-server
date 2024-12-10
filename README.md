@@ -41,6 +41,112 @@ You can then ask Claude natural questions like:
 
 Claude will understand the context and make the appropriate API calls.
 
+## File Upload Support
+
+The proxy supports file uploads for APIs that accept multipart/form-data. When an endpoint accepts file uploads (indicated by `type: string, format: binary` in the OpenAPI spec), you can provide local file paths and the proxy will handle reading and uploading the files.
+
+### Example Use Cases
+
+1. **Profile Picture Upload**
+```yaml
+/users/{userId}/avatar:
+  post:
+    summary: Upload a user's profile picture
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              avatar:
+                type: string
+                format: binary
+                description: Profile picture (JPEG/PNG)
+              cropInfo:
+                type: object
+                properties:
+                  x: { type: number }
+                  y: { type: number }
+                  width: { type: number }
+                  height: { type: number }
+```
+
+You can ask Claude:
+- "Upload my new profile picture from ~/Pictures/profile.jpg"
+- "Update my avatar with ~/Downloads/photo.png and crop it to 200x200"
+
+2. **Document Processing**
+```yaml
+/documents:
+  post:
+    summary: Upload documents for processing
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              document:
+                type: string
+                format: binary
+                description: PDF or Word document
+              language:
+                type: string
+                enum: [en, es, fr]
+                description: Document language
+              processOCR:
+                type: boolean
+                description: Whether to extract text using OCR
+```
+
+Natural language commands:
+- "Process the document at ~/Documents/contract.pdf in English with OCR enabled"
+- "Upload ~/Downloads/report.docx and set the language to French"
+
+3. **Batch File Upload**
+```yaml
+/batch-upload:
+  post:
+    summary: Upload multiple files in one request
+    requestBody:
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            properties:
+              files:
+                type: array
+                items:
+                  type: string
+                  format: binary
+              tags:
+                type: array
+                items:
+                  type: string
+```
+
+You can say:
+- "Upload these three files: ~/data1.csv, ~/data2.csv, and ~/data3.csv with tags 'monthly-report'"
+- "Process the files in ~/exports/ with tags 'raw-data', 'june-2023'"
+
+### Important Considerations
+
+1. **Security**
+   - File paths are resolved relative to the current working directory
+   - Access is restricted to files the user has permission to read
+   - Sensitive files (like ~/.ssh/id_rsa) require explicit user confirmation
+   - File contents are only read when making the actual API request
+
+2. **Performance**
+   - Large files are streamed directly from disk to the API
+   - Memory usage is optimized for large files
+   - Progress reporting is available for large uploads
+
+3. **Limitations**
+   - Maximum file size is determined by the target API
+   - Only local files are supported (no remote URLs)
+   - Some file types may be restricted by the API
+
 ## Getting Started
 
 1. **Configure Claude Desktop:**
@@ -85,7 +191,7 @@ See [examples/README.md](examples/README.md) for instructions on running the exa
 
 - Currently supports OpenAPI v3.1 specs only
 - Response handling is optimized for JSON/text responses
-- File uploads not yet supported
+- File uploads support local files only (no remote URLs)
 - Streaming responses not yet implemented
 
 ## Development
@@ -103,8 +209,15 @@ pnpm test
 # Build the project
 pnpm build
 
-# Start in development mode
-pnpm dev
+# Link the project to your global node_modules so that npx works
+npm link
+
+# Now start claude desktop to use
+
+# After making changes run build again before restarting claude desktop
+pnpm build
+
+# Now restart claude desktop to run with latest changes
 ```
 
 ## License
