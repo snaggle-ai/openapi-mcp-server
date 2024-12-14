@@ -88,7 +88,7 @@ describe('HttpClient File Upload', () => {
     if (!uploadPath?.post) {
       throw new Error('Upload path not found in spec')
     }
-    const operation = uploadPath.post
+    const operation = uploadPath.post as OpenAPIV3.OperationObject & { method: string, path: string }
     const params = {
       file: '/path/to/test.txt',
       description: 'Test file'
@@ -121,7 +121,7 @@ describe('HttpClient File Upload', () => {
     if (!uploadPath?.post) {
       throw new Error('Upload path not found in spec')
     }
-    const operation = uploadPath.post
+    const operation = uploadPath.post as OpenAPIV3.OperationObject & { method: string, path: string }
     const params = {
       file: '/nonexistent/file.txt',
       description: 'Test file'
@@ -198,7 +198,7 @@ describe('HttpClient File Upload', () => {
       headers: {}
     })
 
-    await client.executeOperation(operation, params)
+    await client.executeOperation(operation as OpenAPIV3.OperationObject & { method: string, path: string }, params)
 
     expect(fs.createReadStream).toHaveBeenCalledWith('/path/to/test1.txt')
     expect(fs.createReadStream).toHaveBeenCalledWith('/path/to/test2.txt')

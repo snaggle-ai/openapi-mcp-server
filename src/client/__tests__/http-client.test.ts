@@ -51,7 +51,7 @@ describe('HttpClient', () => {
     }
   }
 
-  const getPetOperation = sampleSpec.paths['/pets/{petId}']?.get
+  const getPetOperation = sampleSpec.paths['/pets/{petId}']?.get as OpenAPIV3.OperationObject & { method: string, path: string }
   if (!getPetOperation) {
     throw new Error('Test setup error: getPet operation not found in sample spec')
   }
@@ -83,8 +83,8 @@ describe('HttpClient', () => {
       { petId: 1 }
     )
 
-    // Note GET requests should not have a Content-Type header!
-    expect(mockApi.getPet).toHaveBeenCalledWith({ petId: 1 }, {}, { headers: { } })
+    // Note GET requests should have a null Content-Type header!
+    expect(mockApi.getPet).toHaveBeenCalledWith({ petId: 1 }, undefined, { headers: { 'Content-Type': null } })
     expect(response.data).toEqual(mockResponse.data)
     expect(response.status).toBe(200)
     expect(response.headers).toBeInstanceOf(Headers)
@@ -92,7 +92,9 @@ describe('HttpClient', () => {
   })
 
   it('throws error when operation ID is missing', async () => {
-    const operationWithoutId: OpenAPIV3.OperationObject = {
+    const operationWithoutId: OpenAPIV3.OperationObject & { method: string, path: string } = {
+      method: 'GET',
+      path: '/unknown',
       responses: {
         '200': {
           description: 'OK'
@@ -106,7 +108,9 @@ describe('HttpClient', () => {
   })
 
   it('throws error when operation is not found', async () => {
-    const operation: OpenAPIV3.OperationObject = {
+    const operation: OpenAPIV3.OperationObject & { method: string, path: string } = {
+      method: 'GET',
+      path: '/unknown',
       operationId: 'nonexistentOperation',
       responses: {
         '200': {
@@ -307,7 +311,7 @@ describe('HttpClient', () => {
       }
     }
 
-    const postOperation = testSpec.paths['/test']?.post
+    const postOperation = testSpec.paths['/test']?.post as OpenAPIV3.OperationObject & { method: string, path: string }
     if (!postOperation) {
       throw new Error('Test setup error: post operation not found')
     }
@@ -388,7 +392,7 @@ describe('HttpClient', () => {
       }
     }
 
-    const complexOperation = complexSpec.paths['/users/{userId}/posts']?.post
+    const complexOperation = complexSpec.paths['/users/{userId}/posts']?.post as OpenAPIV3.OperationObject & { method: string, path: string }
     if (!complexOperation) {
       throw new Error('Test setup error: complex operation not found')
     }
@@ -509,7 +513,7 @@ describe('HttpClient', () => {
 
     try {
       await client.executeOperation(
-        operation as OpenAPIV3.OperationObject,
+        operation as OpenAPIV3.OperationObject & { method: string, path: string },
         {}
       )
       // Should not reach here
@@ -547,7 +551,7 @@ describe('HttpClient', () => {
     }
 
     const response = await client.executeOperation(
-      operation as OpenAPIV3.OperationObject,
+      operation as OpenAPIV3.OperationObject & { method: string, path: string },
       {
         queryParam: 'query1',
         pathParam: 'path1',

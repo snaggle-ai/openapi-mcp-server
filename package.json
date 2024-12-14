@@ -1,6 +1,7 @@
 {
   "name": "openapi-mcp-server",
-  "version": "1.0.2",
+  "keywords": ["openapi", "mcp", "server", "proxy"],
+  "version": "1.0.5",
   "license": "MIT",
   "type": "module",
   "scripts": {

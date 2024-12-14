@@ -51,6 +51,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Add the new middleware here
+app.use((req, res, next) => {
+  if (req.method === 'GET' && req.headers['content-type']) {
+    return res.status(400).json({
+      error: 'Content-Type header not allowed for GET requests'
+    });
+  }
+  next();
+});
+
 // Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

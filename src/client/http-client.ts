@@ -82,7 +82,7 @@ export class HttpClient {
    * Execute an OpenAPI operation
    */
   async executeOperation<T = any>(
-    operation: OpenAPIV3.OperationObject,
+    operation: OpenAPIV3.OperationObject & { method: string, path: string } ,
     params: Record<string, any> = {}
   ): Promise<HttpClientResponse<T>> {
     const api = await this.api
@@ -133,7 +133,7 @@ export class HttpClient {
       // If we have form data, we need to set the correct headers
       const hasBody = Object.keys(bodyParams).length > 0;
       const headers = formData ? formData.getHeaders()
-                                : { ...(hasBody ? {'Content-Type': 'application/json' } : {}) };
+                                : { ...(hasBody ? {'Content-Type': 'application/json' } : {'Content-Type': null}) };
       const requestConfig = {
         headers: {
           ...headers
@@ -141,7 +141,8 @@ export class HttpClient {
       };
 
       // first argument is url parameters, second is body parameters
-      const response = await operationFn(urlParameters, bodyParams, requestConfig)
+      console.error('calling operation', { operationId, urlParameters, bodyParams, requestConfig })
+      const response = await operationFn(urlParameters, hasBody ? bodyParams : undefined, requestConfig)
       
       // Convert axios headers to Headers object
       const responseHeaders = new Headers()

@@ -51,7 +51,7 @@ describe('HttpClient Integration Tests', () => {
     if (!operation) throw new Error('Operation not found')
 
     const response = await client.executeOperation<Pet[]>(
-      operation
+      operation as OpenAPIV3.OperationObject & { method: string, path: string },
     )
 
     expect(response.status).toBe(200)
@@ -63,7 +63,7 @@ describe('HttpClient Integration Tests', () => {
   })
 
   it('should filter pets by status', async () => {
-    const operation = openApiSpec.paths['/pets']?.get
+    const operation = openApiSpec.paths['/pets']?.get as OpenAPIV3.OperationObject & { method: string, path: string }
     if (!operation) throw new Error('Operation not found')
 
     const response = await client.executeOperation<Pet[]>(
@@ -79,7 +79,7 @@ describe('HttpClient Integration Tests', () => {
   })
 
   it('should get a specific pet by ID', async () => {
-    const operation = openApiSpec.paths['/pets/{id}']?.get
+    const operation = openApiSpec.paths['/pets/{id}']?.get as OpenAPIV3.OperationObject & { method: string, path: string }
     if (!operation) throw new Error('Operation not found')
 
     const response = await client.executeOperation<Pet>(
@@ -94,7 +94,7 @@ describe('HttpClient Integration Tests', () => {
   })
 
   it('should create a new pet', async () => {
-    const operation = openApiSpec.paths['/pets']?.post
+    const operation = openApiSpec.paths['/pets']?.post as OpenAPIV3.OperationObject & { method: string, path: string }
     if (!operation) throw new Error('Operation not found')
 
     const newPet = {
@@ -104,7 +104,7 @@ describe('HttpClient Integration Tests', () => {
     }
 
     const response = await client.executeOperation<Pet>(
-      operation,
+      operation as OpenAPIV3.OperationObject & { method: string, path: string },
       newPet
     )
 
@@ -121,7 +121,7 @@ describe('HttpClient Integration Tests', () => {
     if (!operation) throw new Error('Operation not found')
 
     const response = await client.executeOperation<Pet>(
-      operation,
+      operation as OpenAPIV3.OperationObject & { method: string, path: string },
       {
         id: 1,
         status: 'sold'
@@ -139,7 +139,7 @@ describe('HttpClient Integration Tests', () => {
     if (!createOperation) throw new Error('Operation not found')
 
     const createResponse = await client.executeOperation<Pet>(
-      createOperation,
+      createOperation as OpenAPIV3.OperationObject & { method: string, path: string },
       {
         name: 'ToDelete',
         species: 'Cat',
@@ -153,7 +153,7 @@ describe('HttpClient Integration Tests', () => {
     if (!deleteOperation) throw new Error('Operation not found')
 
     const deleteResponse = await client.executeOperation(
-      deleteOperation,
+      deleteOperation as OpenAPIV3.OperationObject & { method: string, path: string },
       { id: petId }
     )
 
@@ -165,7 +165,7 @@ describe('HttpClient Integration Tests', () => {
 
     try {
       await client.executeOperation(
-        getOperation,
+        getOperation as OpenAPIV3.OperationObject & { method: string, path: string },
         { id: petId }
       )
       throw new Error('Should not reach here')
@@ -175,12 +175,12 @@ describe('HttpClient Integration Tests', () => {
   })
 
   it('should handle errors appropriately', async () => {
-    const operation = openApiSpec.paths['/pets/{id}']?.get
+    const operation = openApiSpec.paths['/pets/{id}']?.get as OpenAPIV3.OperationObject & { method: string, path: string }
     if (!operation) throw new Error('Operation not found')
-    
+
     try {
       await client.executeOperation(
-        operation,
+        operation as OpenAPIV3.OperationObject & { method: string, path: string },
         { id: 99999 } // Non-existent ID
       )
       throw new Error('Should not reach here')
