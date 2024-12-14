@@ -131,12 +131,14 @@ export class HttpClient {
 
     try {
       // If we have form data, we need to set the correct headers
-      const headers = formData ? formData.getHeaders() : { 'Content-Type': 'application/json' }
+      const hasBody = Object.keys(bodyParams).length > 0;
+      const headers = formData ? formData.getHeaders()
+                                : { ...(hasBody ? {'Content-Type': 'application/json' } : {}) };
       const requestConfig = {
         headers: {
           ...headers
         }
-      }
+      };
 
       // first argument is url parameters, second is body parameters
       const response = await operationFn(urlParameters, bodyParams, requestConfig)

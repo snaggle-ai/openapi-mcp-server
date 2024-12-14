@@ -83,7 +83,8 @@ describe('HttpClient', () => {
       { petId: 1 }
     )
 
-    expect(mockApi.getPet).toHaveBeenCalledWith({ petId: 1 }, {}, { headers: { 'Content-Type': 'application/json' } })
+    // Note GET requests should not have a Content-Type header!
+    expect(mockApi.getPet).toHaveBeenCalledWith({ petId: 1 }, {}, { headers: { } })
     expect(response.data).toEqual(mockResponse.data)
     expect(response.status).toBe(200)
     expect(response.headers).toBeInstanceOf(Headers)
