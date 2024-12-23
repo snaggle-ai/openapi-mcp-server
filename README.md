@@ -1,5 +1,7 @@
 # OpenAPI MCP Server
 
+[![smithery badge](https://smithery.ai/badge/openapi-mcp-server)](https://smithery.ai/server/openapi-mcp-server)
+
 > **Talk to any OpenAPI (v3.1) compliant API through Claude Desktop!**
 
 This tool creates a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server that acts as a proxy for any API that has an OpenAPI v3.1 specification. This allows you to use Claude Desktop to easily interact with both local and remote server APIs.
