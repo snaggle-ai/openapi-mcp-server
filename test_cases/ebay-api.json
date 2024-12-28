@@ -1,0 +1,2555 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "eBay Trading API",
+      "version": "1.0.0",
+      "description": "API for interacting with eBay Trading API"
+    },
+    "servers": [
+      {
+        "url": "https://ba4d8125-91e3-402e-8041-1ac825d3a3da-00-1p96pqe01w7ko.kirk.replit.dev"
+      }
+    ],
+    "components": {
+      "securitySchemes": {
+        "bearerAuth": {
+          "type": "http",
+          "scheme": "bearer"
+        }
+      },
+      "schemas": {}
+    },
+    "paths": {
+      "/api/ebay/categories/top-level": {
+        "get": {
+          "tags": [
+            "Categories"
+          ],
+          "summary": "Get top-level eBay categories",
+          "description": "Returns a list of all top-level categories for the specified eBay site",
+          "security": [
+            {
+              "bearer": [
+                "https://api.ebay.com/oauth/api_scope"
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay user ID"
+              },
+              "description": "eBay user ID"
+            },
+            {
+              "name": "siteId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay site ID (e.g., 'EBAY_US')"
+              },
+              "description": "eBay site ID (e.g., 'EBAY_US')"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "success"
+                        ]
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "description": "Category ID"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Category name"
+                            },
+                            "level": {
+                              "type": "number",
+                              "description": "Category level in hierarchy"
+                            },
+                            "parentId": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "description": "Parent category ID"
+                            },
+                            "isLeaf": {
+                              "type": "boolean",
+                              "description": "Whether this is a leaf category"
+                            },
+                            "fullPath": {
+                              "type": "string",
+                              "description": "Full category path"
+                            },
+                            "parentIds": {
+                              "type": "array",
+                              "items": {
+                                "oneOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "number"
+                                  }
+                                ]
+                              },
+                              "description": "Array of parent category IDs"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "level",
+                            "parentId",
+                            "isLeaf"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "data"
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request parameters",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing eBay token",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "operationId": "get_api_ebay_categories_top_level_833ef4a3"
+        }
+      },
+      "/api/ebay/categories/leaves/{categoryId}": {
+        "get": {
+          "tags": [
+            "Categories"
+          ],
+          "summary": "Get leaf categories",
+          "description": "Returns all leaf categories under the specified parent category",
+          "security": [
+            {
+              "bearer": [
+                "https://api.ebay.com/oauth/api_scope"
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "name": "categoryId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "Parent category ID"
+              },
+              "description": "Parent category ID"
+            },
+            {
+              "name": "userId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay user ID"
+              },
+              "description": "eBay user ID"
+            },
+            {
+              "name": "siteId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay site ID (e.g., 'EBAY_US')"
+              },
+              "description": "eBay site ID (e.g., 'EBAY_US')"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "success"
+                        ]
+                      },
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "description": "Category ID"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "Category name"
+                            },
+                            "level": {
+                              "type": "number",
+                              "description": "Category level in hierarchy"
+                            },
+                            "parentId": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ],
+                              "description": "Parent category ID"
+                            },
+                            "isLeaf": {
+                              "type": "boolean",
+                              "description": "Whether this is a leaf category"
+                            },
+                            "fullPath": {
+                              "type": "string",
+                              "description": "Full category path"
+                            },
+                            "parentIds": {
+                              "type": "array",
+                              "items": {
+                                "oneOf": [
+                                  {
+                                    "type": "string"
+                                  },
+                                  {
+                                    "type": "number"
+                                  }
+                                ]
+                              },
+                              "description": "Array of parent category IDs"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "name",
+                            "level",
+                            "parentId",
+                            "isLeaf"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "data"
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request parameters",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing eBay token",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "operationId": "get_api_ebay_categories_leaves_3ea8b601"
+        }
+      },
+      "/api/ebay/categories/conditions/{categoryId}": {
+        "get": {
+          "tags": [
+            "Categories"
+          ],
+          "summary": "Get category condition policies",
+          "description": "Returns the condition policies for a specific category",
+          "security": [
+            {
+              "bearer": [
+                "https://api.ebay.com/oauth/api_scope"
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "name": "categoryId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "Category ID"
+              },
+              "description": "Category ID"
+            },
+            {
+              "name": "userId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay user ID"
+              },
+              "description": "eBay user ID"
+            },
+            {
+              "name": "marketplaceId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay marketplace ID (e.g., 'EBAY_US')"
+              },
+              "description": "eBay marketplace ID (e.g., 'EBAY_US')"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "success"
+                        ]
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "categoryId": {
+                            "oneOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ],
+                            "description": "The category ID"
+                          },
+                          "conditionDescriptors": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "description": "The condition ID"
+                                },
+                                "description": {
+                                  "type": "string",
+                                  "description": "Description of the condition"
+                                }
+                              },
+                              "required": [
+                                "id"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "categoryId",
+                          "conditionDescriptors"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "data"
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request parameters",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing eBay token",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No condition policies found for the category",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "operationId": "get_api_ebay_categories_conditions_0196f1da"
+        }
+      },
+      "/api/ebay/categories/{categoryId}/aspects": {
+        "get": {
+          "tags": [
+            "Categories"
+          ],
+          "summary": "Get category aspects",
+          "description": "Returns the required and optional item aspects for a specific category",
+          "security": [
+            {
+              "bearer": [
+                "https://api.ebay.com/oauth/api_scope"
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "name": "categoryId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "Category ID"
+              },
+              "description": "Category ID"
+            },
+            {
+              "name": "userId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay user ID"
+              },
+              "description": "eBay user ID"
+            },
+            {
+              "name": "marketplaceId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay marketplace ID (e.g., 'EBAY_US')"
+              },
+              "description": "eBay marketplace ID (e.g., 'EBAY_US')"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "success"
+                        ]
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "aspects": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "localizedAspectName": {
+                                  "type": "string"
+                                },
+                                "aspectConstraint": {
+                                  "type": "object",
+                                  "properties": {
+                                    "aspectDataType": {
+                                      "type": "string",
+                                      "enum": [
+                                        "DATE",
+                                        "NUMBER",
+                                        "STRING",
+                                        "TEXT"
+                                      ]
+                                    },
+                                    "aspectEnabledForVariations": {
+                                      "type": "boolean"
+                                    },
+                                    "aspectFormat": {
+                                      "type": "string"
+                                    },
+                                    "aspectMaxLength": {
+                                      "type": "number"
+                                    },
+                                    "aspectMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "FREE_TEXT",
+                                        "SELECTION_ONLY"
+                                      ]
+                                    },
+                                    "aspectRequired": {
+                                      "type": "boolean"
+                                    },
+                                    "aspectUsage": {
+                                      "type": "string",
+                                      "enum": [
+                                        "RECOMMENDED",
+                                        "OPTIONAL"
+                                      ]
+                                    },
+                                    "expectedRequiredByDate": {
+                                      "type": "string"
+                                    },
+                                    "itemToAspectCardinality": {
+                                      "type": "string",
+                                      "enum": [
+                                        "MULTI",
+                                        "SINGLE"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "aspectDataType",
+                                    "aspectEnabledForVariations",
+                                    "aspectMode",
+                                    "aspectRequired",
+                                    "aspectUsage",
+                                    "itemToAspectCardinality"
+                                  ]
+                                },
+                                "aspectValues": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "relevanceIndicator": {
+                                  "type": "object",
+                                  "properties": {
+                                    "searchCount": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "searchCount"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "localizedAspectName",
+                                "aspectConstraint"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "aspects"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "data"
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request parameters",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing eBay token",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No aspects found for the category",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "operationId": "get_api_ebay_categories_aspects_59d62e7d"
+        }
+      },
+      "/api/ebay/categories/{categoryId}/listing-requirements": {
+        "get": {
+          "tags": [
+            "Categories"
+          ],
+          "summary": "Get category listing requirements",
+          "description": "Returns both the required/optional item aspects and allowed conditions for a specific category",
+          "security": [
+            {
+              "bearer": [
+                "https://api.ebay.com/oauth/api_scope"
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "name": "categoryId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "Category ID"
+              },
+              "description": "Category ID"
+            },
+            {
+              "name": "userId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay user ID"
+              },
+              "description": "eBay user ID"
+            },
+            {
+              "name": "marketplaceId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay marketplace ID (e.g., 'EBAY_US')"
+              },
+              "description": "eBay marketplace ID (e.g., 'EBAY_US')"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "success"
+                        ]
+                      },
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "categoryId": {
+                            "oneOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "number"
+                              }
+                            ]
+                          },
+                          "aspects": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "localizedAspectName": {
+                                  "type": "string"
+                                },
+                                "aspectConstraint": {
+                                  "type": "object",
+                                  "properties": {
+                                    "aspectDataType": {
+                                      "type": "string",
+                                      "enum": [
+                                        "DATE",
+                                        "NUMBER",
+                                        "STRING",
+                                        "TEXT"
+                                      ]
+                                    },
+                                    "aspectEnabledForVariations": {
+                                      "type": "boolean"
+                                    },
+                                    "aspectFormat": {
+                                      "type": "string"
+                                    },
+                                    "aspectMaxLength": {
+                                      "type": "number"
+                                    },
+                                    "aspectMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "FREE_TEXT",
+                                        "SELECTION_ONLY"
+                                      ]
+                                    },
+                                    "aspectRequired": {
+                                      "type": "boolean"
+                                    },
+                                    "aspectUsage": {
+                                      "type": "string",
+                                      "enum": [
+                                        "RECOMMENDED",
+                                        "OPTIONAL"
+                                      ]
+                                    },
+                                    "expectedRequiredByDate": {
+                                      "type": "string"
+                                    },
+                                    "itemToAspectCardinality": {
+                                      "type": "string",
+                                      "enum": [
+                                        "MULTI",
+                                        "SINGLE"
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "aspectDataType",
+                                    "aspectEnabledForVariations",
+                                    "aspectMode",
+                                    "aspectRequired",
+                                    "aspectUsage",
+                                    "itemToAspectCardinality"
+                                  ]
+                                },
+                                "aspectValues": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string"
+                                  }
+                                },
+                                "relevanceIndicator": {
+                                  "type": "object",
+                                  "properties": {
+                                    "searchCount": {
+                                      "type": "number"
+                                    }
+                                  },
+                                  "required": [
+                                    "searchCount"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "localizedAspectName",
+                                "aspectConstraint"
+                              ]
+                            }
+                          },
+                          "conditions": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "categoryId",
+                          "aspects",
+                          "conditions"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "data"
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request parameters",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing eBay token",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "No aspects or conditions found for the category",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "operationId": "get_api_ebay_categories_listing_requirements_700b6d7f"
+        }
+      },
+      "/api/ebay/listings/auction": {
+        "post": {
+          "tags": [
+            "Listings"
+          ],
+          "summary": "Create a new auction listing",
+          "description": "Creates a new auction listing on eBay with the specified details",
+          "security": [
+            {
+              "bearer": [
+                "https://api.ebay.com/oauth/api_scope/sell.inventory"
+              ]
+            }
+          ],
+          "parameters": [
+            {
+              "name": "userId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "eBay user ID"
+              },
+              "description": "eBay user ID"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "title": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80,
+                      "description": "Listing title"
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Listing description"
+                    },
+                    "categoryId": {
+                      "type": "string",
+                      "description": "eBay category ID"
+                    },
+                    "conditionId": {
+                      "type": "number",
+                      "description": "Item condition ID"
+                    },
+                    "startPrice": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "description": "Starting price"
+                    },
+                    "buyItNowPrice": {
+                      "type": "number",
+                      "exclusiveMinimum": 0,
+                      "description": "Buy it now price"
+                    },
+                    "listingDuration": {
+                      "default": "Days_7",
+                      "type": "string",
+                      "description": "Duration of the listing"
+                    },
+                    "shippingCost": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Shipping cost"
+                    },
+                    "postalCode": {
+                      "type": "string",
+                      "description": "Postal code for shipping"
+                    },
+                    "dispatchTimeMax": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "description": "Maximum dispatch time in days"
+                    },
+                    "images": {
+                      "description": "Images for the listing",
+                      "type": "object",
+                      "properties": {
+                        "base64": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          },
+                          "description": "Array of base64 encoded images"
+                        },
+                        "urls": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          "description": "Array of image URLs"
+                        }
+                      }
+                    }
+                  },
+                  "required": [
+                    "title",
+                    "description",
+                    "categoryId",
+                    "startPrice",
+                    "shippingCost",
+                    "postalCode",
+                    "dispatchTimeMax",
+                    "images"
+                  ]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "discriminator": {
+                      "propertyName": "status"
+                    },
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "success"
+                            ]
+                          },
+                          "data": {
+                            "type": "object",
+                            "properties": {
+                              "itemId": {
+                                "type": "string",
+                                "description": "eBay item ID"
+                              },
+                              "title": {
+                                "type": "string",
+                                "description": "Listing title"
+                              },
+                              "startTime": {
+                                "type": "string",
+                                "description": "Listing start time"
+                              },
+                              "endTime": {
+                                "type": "string",
+                                "description": "Listing end time"
+                              }
+                            },
+                            "required": [
+                              "itemId",
+                              "title",
+                              "startTime",
+                              "endTime"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "data"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "error"
+                            ]
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "errorType": {
+                            "type": "string",
+                            "enum": [
+                              "VALIDATION_ERROR",
+                              "BUSINESS_POLICIES_ERROR",
+                              "EBAY_API_ERROR",
+                              "AUTH_ERROR",
+                              "INTERNAL_ERROR"
+                            ]
+                          },
+                          "errors": {
+                            "type": "array",
+                            "items": {}
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "message",
+                          "errorType"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request parameters or eBay API validation error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "BUSINESS_POLICIES_ERROR",
+                          "EBAY_API_ERROR",
+                          "AUTH_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing eBay token",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden - Insufficient permissions or business policy error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "BUSINESS_POLICIES_ERROR",
+                          "EBAY_API_ERROR",
+                          "AUTH_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "BUSINESS_POLICIES_ERROR",
+                          "EBAY_API_ERROR",
+                          "AUTH_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "operationId": "post_api_ebay_listings_auction_fe15420c",
+          "x-openai-isConsequential": false
+        }
+      },
+      "/api/listings/advanced": {
+        "post": {
+          "tags": [
+            "Listings"
+          ],
+          "summary": "Create an advanced listing with full eBay Trading API support",
+          "description": "Create a new eBay listing with advanced options including shipping, returns, and condition details",
+          "parameters": [
+            {
+              "name": "site",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "The eBay site ID to list on"
+              },
+              "description": "The eBay site ID to list on"
+            },
+            {
+              "name": "userId",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "description": "The eBay user ID to authenticate as"
+              },
+              "description": "The eBay user ID to authenticate as"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "item": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string"
+                        },
+                        "primaryCategory": {
+                          "type": "object",
+                          "properties": {
+                            "categoryId": {
+                              "type": "string"
+                            },
+                            "categoryName": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "categoryId"
+                          ]
+                        },
+                        "quantity": {
+                          "type": "integer"
+                        },
+                        "itemSpecifics": {
+                          "type": "object",
+                          "additionalProperties": {
+                            "oneOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "startPrice": {
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "number"
+                            },
+                            "currencyId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "value",
+                            "currencyId"
+                          ]
+                        },
+                        "description": {
+                          "type": "string"
+                        },
+                        "listingDuration": {
+                          "type": "string"
+                        },
+                        "listingType": {
+                          "type": "string"
+                        },
+                        "location": {
+                          "type": "string"
+                        },
+                        "country": {
+                          "type": "string"
+                        },
+                        "currency": {
+                          "type": "string"
+                        },
+                        "paymentMethods": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        },
+                        "dispatchTimeMax": {
+                          "default": 3,
+                          "type": "integer"
+                        },
+                        "pictureDetails": {
+                          "type": "object",
+                          "properties": {
+                            "galleryType": {
+                              "type": "string"
+                            },
+                            "pictureUrl": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "uri"
+                              }
+                            }
+                          },
+                          "required": [
+                            "galleryType"
+                          ]
+                        },
+                        "returnPolicy": {
+                          "type": "object",
+                          "properties": {
+                            "returnsAcceptedOption": {
+                              "type": "string",
+                              "enum": [
+                                "ReturnsAccepted",
+                                "ReturnsNotAccepted"
+                              ]
+                            },
+                            "returnsWithinOption": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "returnsAcceptedOption",
+                            "description"
+                          ]
+                        },
+                        "shippingDetails": {
+                          "type": "object",
+                          "properties": {
+                            "shippingType": {
+                              "type": "string"
+                            },
+                            "shippingServiceOptions": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "shippingService": {
+                                    "type": "string"
+                                  },
+                                  "shippingServiceCost": {
+                                    "type": "object",
+                                    "properties": {
+                                      "value": {
+                                        "type": "number"
+                                      },
+                                      "currencyId": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "value",
+                                      "currencyId"
+                                    ]
+                                  },
+                                  "freeShipping": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "shippingService"
+                                ]
+                              }
+                            }
+                          },
+                          "required": [
+                            "shippingType",
+                            "shippingServiceOptions"
+                          ]
+                        },
+                        "conditionId": {
+                          "type": "integer"
+                        },
+                        "conditionDescription": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "primaryCategory",
+                        "quantity",
+                        "startPrice",
+                        "location"
+                      ]
+                    },
+                    "errorLanguage": {
+                      "type": "string"
+                    },
+                    "warningLevel": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "item"
+                  ]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "itemId": {
+                        "type": "string"
+                      },
+                      "startTime": {
+                        "type": "string"
+                      },
+                      "endTime": {
+                        "type": "string"
+                      },
+                      "fees": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string"
+                            },
+                            "fee": {
+                              "type": "object",
+                              "properties": {
+                                "value": {
+                                  "type": "number"
+                                },
+                                "currencyId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "value",
+                                "currencyId"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "fee"
+                          ]
+                        }
+                      },
+                      "category": {
+                        "type": "object",
+                        "properties": {
+                          "categoryId": {
+                            "type": "string"
+                          },
+                          "categoryName": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "categoryId"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "itemId",
+                      "startTime",
+                      "endTime",
+                      "fees",
+                      "category",
+                      "message"
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request parameters or eBay API validation error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "BUSINESS_POLICIES_ERROR",
+                          "EBAY_API_ERROR",
+                          "AUTH_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "severity": {
+                              "type": "string"
+                            },
+                            "classification": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized - Invalid or missing eBay token",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "BUSINESS_POLICIES_ERROR",
+                          "EBAY_API_ERROR",
+                          "AUTH_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "severity": {
+                              "type": "string"
+                            },
+                            "classification": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden - Insufficient permissions or business policy error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "BUSINESS_POLICIES_ERROR",
+                          "EBAY_API_ERROR",
+                          "AUTH_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "severity": {
+                              "type": "string"
+                            },
+                            "classification": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "BUSINESS_POLICIES_ERROR",
+                          "EBAY_API_ERROR",
+                          "AUTH_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "code": {
+                              "oneOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                }
+                              ]
+                            },
+                            "message": {
+                              "type": "string"
+                            },
+                            "severity": {
+                              "type": "string"
+                            },
+                            "classification": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "code",
+                            "message"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "operationId": "post_api_listings_advanced_1cdf2764",
+          "x-openai-isConsequential": false
+        }
+      },
+      "/api/images/upload": {
+        "post": {
+          "tags": [
+            "Images"
+          ],
+          "summary": "Upload multiple images",
+          "description": "Upload one or more images using multipart/form-data. Accepts up to 12 image files (JPEG, PNG, GIF, WebP) with a maximum size of 5MB each. Use field name 'images' for the file uploads.",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "format": "binary"
+                      },
+                      "description": "Image files to upload. Supports JPEG, PNG, GIF, and WebP formats. Maximum 12 files, each up to 5MB."
+                    }
+                  },
+                  "required": [
+                    "images"
+                  ]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "discriminator": {
+                      "propertyName": "status"
+                    },
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "success"
+                            ]
+                          },
+                          "data": {
+                            "type": "object",
+                            "properties": {
+                              "urls": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "format": "uri"
+                                },
+                                "description": "URLs of the uploaded images"
+                              }
+                            },
+                            "required": [
+                              "urls"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "data"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "error"
+                            ]
+                          },
+                          "message": {
+                            "type": "string"
+                          },
+                          "errorType": {
+                            "type": "string",
+                            "enum": [
+                              "VALIDATION_ERROR",
+                              "UPLOAD_ERROR",
+                              "INTERNAL_ERROR"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "status",
+                          "message",
+                          "errorType"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid request parameters or file validation error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "UPLOAD_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "error": {
+                        "type": "string"
+                      },
+                      "code": {
+                        "type": "string"
+                      },
+                      "details": {
+                        "type": "array",
+                        "items": {}
+                      }
+                    },
+                    "required": [
+                      "error",
+                      "code"
+                    ]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "errorType": {
+                        "type": "string",
+                        "enum": [
+                          "VALIDATION_ERROR",
+                          "UPLOAD_ERROR",
+                          "INTERNAL_ERROR"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "status",
+                      "message",
+                      "errorType"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "operationId": "post_api_images_upload_830cd0c4",
+          "x-openai-isConsequential": false
+        }
+      }
+    }
+  }

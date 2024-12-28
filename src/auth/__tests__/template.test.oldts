@@ -1,0 +1,150 @@
+import { describe, it, expect } from 'vitest'
+import { renderAuthTemplate } from '../template'
+import { AuthTemplate } from '../types'
+
+describe('renderAuthTemplate', () => {
+  it('should render a basic POST JSON auth template', () => {
+    const template: AuthTemplate = {
+      url: "{{securityScheme.oauth.tokenUrl}}",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: '{ "username": "{{args.username}}", "password": "{{args.password}}" }'
+    }
+
+    const context = {
+      securityScheme: {
+        oauth: {
+          tokenUrl: "https://api.example.com/oauth/token"
+        }
+      },
+      args: {
+        username: "testuser",
+        password: "testpass"
+      }
+    }
+
+    const result = renderAuthTemplate(template, context)
+    expect(result).toEqual({
+      url: "https://api.example.com/oauth/token",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: '{ "username": "testuser", "password": "testpass" }'
+    })
+  })
+
+  it('should render a form-urlencoded auth template', () => {
+    const template: AuthTemplate = {
+      url: "{{securityScheme.apiKey.tokenUrl}}",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "login={{args.username}}&key={{args.key}}"
+    }
+
+    const context = {
+      securityScheme: {
+        apiKey: {
+          tokenUrl: "https://api.example.com/auth"
+        }
+      },
+      args: {
+        username: "testuser",
+        key: "abc123"
+      }
+    }
+
+    const result = renderAuthTemplate(template, context)
+    expect(result).toEqual({
+      url: "https://api.example.com/auth",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "login=testuser&key=abc123"
+    })
+  })
+
+  it('should handle server URLs in templates', () => {
+    const template: AuthTemplate = {
+      url: "{{servers.0.url}}/auth",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: '{ "token": "{{args.token}}" }'
+    }
+
+    const context = {
+      servers: [
+        { url: "https://api.example.com/v1" }
+      ],
+      args: {
+        token: "xyz789"
+      }
+    }
+
+    const result = renderAuthTemplate(template, context)
+    expect(result).toEqual({
+      url: "https://api.example.com/v1/auth",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: '{ "token": "xyz789" }'
+    })
+  })
+
+  it('should handle OAuth2 password grant flow with token response', () => {
+    const template: AuthTemplate = {
+      url: "{{securityScheme.oauth.tokenUrl}}",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "grant_type=password&username={{args.username}}&password={{args.password}}&client_id={{securityScheme.oauth.clientId}}",
+      response: {
+        token: "{{response.access_token}}",
+        tokenType: "{{response.token_type}}",
+        expiresIn: "{{response.expires_in}}"
+      }
+    }
+
+    const context = {
+      securityScheme: {
+        oauth: {
+          tokenUrl: "https://api.example.com/oauth/token",
+          clientId: "client123"
+        }
+      },
+      args: {
+        username: "testuser",
+        password: "testpass"
+      },
+      response: {
+        access_token: "eyJhbGciOiJS...",
+        token_type: "Bearer",
+        expires_in: 3600
+      }
+    }
+
+    const result = renderAuthTemplate(template, context)
+    expect(result).toEqual({
+      url: "https://api.example.com/oauth/token",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: "grant_type=password&username=testuser&password=testpass&client_id=client123",
+      response: {
+        token: "eyJhbGciOiJS...",
+        tokenType: "Bearer",
+        expiresIn: 3600
+      }
+    })
+  })
+}) 
