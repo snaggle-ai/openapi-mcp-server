@@ -172,6 +172,19 @@ This repository includes a complete example of a Petstore API server that you ca
 
 See [examples/README.md](examples/README.md) for instructions on running the example server.
 
+### CLI Tool
+The repository includes a command-line tool for testing OpenAPI endpoints:
+
+```bash
+# List all available methods
+pnpm tsx examples/cli/openapi-client.ts http://localhost:3000/openapi.json list
+
+# Call a specific method
+pnpm tsx examples/cli/openapi-client.ts http://localhost:3000/openapi.json call API-getPetById '{"id": 1}'
+```
+
+The CLI tool demonstrates how to use both the `OpenAPIToMCPConverter` and `HttpClient` classes to interact with OpenAPI-compliant servers programmatically.
+
 ## Use Cases
 
 1. **Local Development**
@@ -221,6 +234,77 @@ pnpm build
 
 # Now restart claude desktop to run with latest changes
 ```
+
+## Using OpenAPIToMCPConverter Programmatically
+
+If you want to convert OpenAPI specs to MCP tools programmatically, you can use the `OpenAPIToMCPConverter` class:
+
+```typescript
+import { OpenAPIToMCPConverter } from 'openapi-mcp-server'
+
+// Initialize the converter with your OpenAPI spec
+const converter = new OpenAPIToMCPConverter(openApiSpec)
+
+// Convert to OpenAI tools format
+const openAiTools = await converter.convertToOpenAITools()
+
+// Convert to Anthropic tools format
+const anthropicTools = await converter.convertToAnthropicTools()
+
+// Convert to MCP tools format
+const { tools, openApiLookup } = converter.convertToMCPTools()
+```
+
+The converter supports multiple tool formats, making it easy to integrate with different LLM providers. The converted tools maintain all the type information and descriptions from your OpenAPI spec, ensuring accurate parameter validation and helpful documentation.
+
+## Making API Calls Programmatically
+
+You can use the `HttpClient` class to make API calls directly without going through an LLM:
+
+```typescript
+import { HttpClient, OpenAPIToMCPConverter } from 'openapi-mcp-server'
+
+// Initialize the converter and client
+const converter = new OpenAPIToMCPConverter(openApiSpec)
+const httpClient = new HttpClient({ baseUrl: 'https://api.example.com' }, openApiSpec)
+
+// Get operation details from the converter
+const { openApiLookup } = converter.convertToMCPTools()
+const operation = openApiLookup['API-getPetById']
+
+// Make the API call
+const response = await httpClient.executeOperation(operation, {
+  petId: 123
+})
+```
+
+The `HttpClient` handles:
+- Parameter validation
+- URL path parameter substitution
+- Query string formatting
+- Request body formatting
+- File uploads (multipart/form-data)
+- Error handling
+
+## CLI Example
+
+The repository includes a CLI example that demonstrates using both the converter and HTTP client. You can find it in the `examples/cli` directory.
+
+To use the CLI:
+
+```bash
+# List all available methods
+ts-node examples/cli/openapi-client.ts path/to/spec.json list
+
+# Call a specific method
+ts-node examples/cli/openapi-client.ts path/to/spec.json call API-getPetById '{"petId": 123}'
+```
+
+The CLI example shows how to:
+1. Load and parse OpenAPI specs
+2. List available methods and their parameters
+3. Make API calls with parameters
+4. Handle responses and errors
 
 ## License
 

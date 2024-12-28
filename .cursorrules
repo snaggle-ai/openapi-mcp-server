@@ -13,3 +13,5 @@ Even if you think you've fixed everything, always run `pnpm build` and `pnpm tes
 We use vitest for testing. Do not use Jest or anything else.
 
 When updating README.md keep the tone pragmatic and low key, avoid corporate or marketing speak. Be clear, concise, and to the point, try to practice "show don't tell".
+
+Use native fetch over axios or other http clients.

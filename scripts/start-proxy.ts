@@ -67,7 +67,7 @@ export async function main(args: string[] = process.argv.slice(2)) {
 }
 
 // Only run main if this is the entry point
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main().catch(error => {
     if (error instanceof ValidationError) {
       console.error('Invalid OpenAPI 3.1 specification:')

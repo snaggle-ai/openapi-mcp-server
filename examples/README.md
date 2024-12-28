@@ -58,6 +58,26 @@ The OpenAPI specification is available at http://localhost:3000/openapi.json
    - "Upload a photo of Rover from ~/Pictures/rover.jpg"
    - "Upload these documents for Rover: ~/Documents/medical.pdf and ~/Documents/adoption.pdf"
 
+## Testing with CLI Tool
+
+The repository includes a command-line tool for testing the API directly:
+
+```bash
+# List all available methods
+pnpm tsx examples/cli/openapi-client.ts http://localhost:3000/openapi.json list
+
+# Create a new pet
+pnpm tsx examples/cli/openapi-client.ts http://localhost:3000/openapi.json call API-createPet '{"name": "Rover", "species": "Dog", "age": 3}'
+
+# Get a pet by ID
+pnpm tsx examples/cli/openapi-client.ts http://localhost:3000/openapi.json call API-getPetById '{"id": 1}'
+
+# Update a pet's status
+pnpm tsx examples/cli/openapi-client.ts http://localhost:3000/openapi.json call API-updatePetStatus '{"id": 1, "status": "sold"}'
+```
+
+The CLI tool provides a quick way to test endpoints and understand the API structure without writing code or using Claude Desktop.
+
 ## File Upload Details
 
 The server stores uploaded files in an `uploads` directory and serves them via HTTP. Some important details:
