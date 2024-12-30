@@ -12,8 +12,8 @@ async function build() {
     minify: true,
     platform: 'node',
     target: 'node16',
-    format: 'cjs',
-    outfile: './dist/cli.cjs',
+    format: 'esm',
+    outfile: './dist/cli.mjs',
     banner: {
       js: '#!/usr/bin/env node',
     },

@@ -1,5 +1,5 @@
-import { OpenAPIV3 } from 'openapi-types'
-import { JSONSchema7 as IJsonSchema } from 'json-schema'
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
+import type { JSONSchema7 as IJsonSchema } from 'json-schema'
 import type { ChatCompletionTool } from 'openai/resources/chat/completions'
 import type { Tool } from '@anthropic-ai/sdk/resources/messages/messages'
 
@@ -21,7 +21,7 @@ export class OpenAPIToMCPConverter {
   private schemaCache: Record<string, IJsonSchema> = {}
   private resolvingRefs: Set<string> = new Set()
 
-  constructor(private openApiSpec: OpenAPIV3.Document) {}
+  constructor(private openApiSpec: OpenAPIV3.Document | OpenAPIV3_1.Document) {}
 
   /**
    * Resolve a $ref reference to its schema in the openApiSpec.
@@ -153,7 +153,8 @@ export class OpenAPIToMCPConverter {
 
   convertToMCPTools(): { 
     tools: Record<string, { methods: NewToolMethod[] }>, 
-    openApiLookup: Record<string, OpenAPIV3.OperationObject & { method: string, path: string }> 
+    openApiLookup: Record<string, OpenAPIV3.OperationObject & { method: string, path: string }>,
+    zip: Record<string, { openApi: OpenAPIV3.OperationObject & { method: string, path: string }; mcp: NewToolMethod }>
   } {
     const apiName = 'API'
 
@@ -161,7 +162,7 @@ export class OpenAPIToMCPConverter {
     const tools: Record<string, { methods: NewToolMethod[] }> = {
       [apiName]: { methods: [] }
     }
-
+    const zip: Record<string, { openApi: OpenAPIV3.OperationObject & { method: string, path: string }; mcp: NewToolMethod }> = {}
     for (const [path, pathItem] of Object.entries(this.openApiSpec.paths || {})) {
       if (!pathItem) continue
 
@@ -170,13 +171,14 @@ export class OpenAPIToMCPConverter {
 
         const mcpMethod = this.convertOperationToMCPMethod(operation, method, path)
         if (mcpMethod) {
-          tools[apiName].methods.push(mcpMethod)
+          tools[apiName]!.methods.push(mcpMethod)
           openApiLookup[apiName + '-' + mcpMethod.name] = { ...operation, method, path }
+          zip[apiName + '-' + mcpMethod.name] = { openApi: { ...operation, method, path }, mcp: mcpMethod }
         }
       }
     }
 
-    return { tools, openApiLookup }
+    return { tools, openApiLookup, zip }
   }
 
   /**
@@ -435,19 +437,36 @@ export class OpenAPIToMCPConverter {
     // Extract return type (response schema)
     const returnSchema = this.extractResponseType(operation.responses)
 
-    return {
-      name: operation.operationId,
-      description,
-      inputSchema,
-      ...(returnSchema ? { returnSchema } : {})
+    // Generate Zod schema from input schema
+    try {
+      // const zodSchemaStr = jsonSchemaToZod(inputSchema, { module: "cjs" })
+      // console.log(zodSchemaStr)
+      // // Execute the function with the zod instance
+      // const zodSchema = eval(zodSchemaStr) as z.ZodType
+      
+      return {
+        name: operation.operationId,
+        description,
+        inputSchema,
+        ...(returnSchema ? { returnSchema } : {}),
+      }
+    } catch (error) {
+      console.warn(`Failed to generate Zod schema for ${operation.operationId}:`, error)
+      // Fallback to a basic object schema
+      return {
+        name: operation.operationId,
+        description,
+        inputSchema,
+        ...(returnSchema ? { returnSchema } : {}),
+      }
     }
   }
 
   private extractResponseType(
-    responses: OpenAPIV3.ResponsesObject
+    responses: OpenAPIV3.ResponsesObject | undefined
   ): IJsonSchema | null {
     // Look for a success response
-    const successResponse = responses['200'] || responses['201'] || responses['202'] || responses['204']
+    const successResponse = responses?.['200'] || responses?.['201'] || responses?.['202'] || responses?.['204']
     if (!successResponse) return null
 
     const responseObj = this.resolveResponse(successResponse)

@@ -6,7 +6,7 @@
     "server",
     "proxy"
   ],
-  "version": "1.0.6-beta2",
+  "version": "1.0.6-beta3",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -21,8 +21,8 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
     }
   },
   "dependencies": {
@@ -32,6 +32,8 @@
     "chalk": "^5.3.0",
     "express": "^4.21.2",
     "form-data": "^4.0.1",
+    "json-schema-to-zod": "^2.6.0",
+    "zod": "3.24.1",
     "multer": "1.4.5-lts.1",
     "mustache": "^4.2.0",
     "openapi-client-axios": "^7.5.5",

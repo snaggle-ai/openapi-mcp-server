@@ -2,6 +2,63 @@ import { OpenAPIToMCPConverter } from '../parser'
 import { OpenAPIV3 } from 'openapi-types'
 import { describe, expect, it } from 'vitest'
 import { JSONSchema7 as IJsonSchema } from 'json-schema'
+import { z } from 'zod'
+
+// Custom matcher to check if an object is a Zod schema
+expect.extend({
+  toBeZodSchema(received) {
+    const isZodSchema = 'parse' in received && 'safeParse' in received;
+    console.log('received', received)
+    return {
+      message: () =>
+        `expected ${typeof received} to be a Zod schema`,
+      pass: isZodSchema,
+    }
+  },
+})
+
+// Add the custom matcher to the global types
+declare module 'vitest' {
+  interface Assertion<T = any> {
+    toBeZodSchema(): void
+  }
+}
+
+interface ToolMethod {
+  name: string
+  description: string
+  inputSchema: any
+  returnSchema?: any
+}
+
+interface Tool {
+  methods: ToolMethod[]
+}
+
+interface Tools {
+  [key: string]: Tool
+}
+
+// Helper function to verify tool method structure without checking the exact Zod schema
+function verifyToolMethod(actual: ToolMethod, expected: any) {
+  expect(actual.name).toBe(expected.name)
+  expect(actual.description).toBe(expected.description)
+  expect(actual.inputSchema).toEqual(expected.inputSchema)
+  if (expected.returnSchema) {
+    expect(actual.returnSchema).toEqual(expected.returnSchema)
+  }
+}
+
+// Helper function to verify tools structure
+function verifyTools(actual: Tools, expected: any) {
+  expect(Object.keys(actual)).toEqual(Object.keys(expected))
+  for (const [key, value] of Object.entries(actual)) {
+    expect(value.methods.length).toBe(expected[key].methods.length)
+    value.methods.forEach((method: ToolMethod, index: number) => {
+      verifyToolMethod(method, expected[key].methods[index])
+    })
+  }
+}
 
 // A helper function to derive a type from a possibly complex schema.
 // If no explicit type is found, we assume 'object' for testing purposes.
@@ -1101,10 +1158,8 @@ describe('OpenAPIToMCPConverter - Additional Complex Tests', () => {
     const converter = new OpenAPIToMCPConverter(input)
     const { tools, openApiLookup } = converter.convertToMCPTools()
 
-    // In these tests, we ensure that descriptions are carried over.
-    // We verify that the overall structure and references match and that
-    // each schema that had a description still has it.
-    expect(tools).toEqual(expected.tools)
+    // Use the custom verification instead of direct equality
+    verifyTools(tools, expected.tools)
     expect(openApiLookup).toEqual(expected.openApiLookup)
   })
 });
