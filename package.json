@@ -6,7 +6,7 @@
     "server",
     "proxy"
   ],
-  "version": "1.0.6-beta3",
+  "version": "1.0.6-beta4",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -59,6 +59,7 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
+    "src",
     "README.md"
   ],
   "engines": {
