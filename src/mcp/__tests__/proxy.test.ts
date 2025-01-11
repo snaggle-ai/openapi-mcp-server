@@ -202,7 +202,6 @@ describe('MCPProxy', () => {
     it('should connect to transport', async () => {
       const mockTransport = {} as Transport
       await proxy.connect(mockTransport)
-
       const server = (proxy as any).server
       expect(server.connect).toHaveBeenCalledWith(mockTransport)
     })
