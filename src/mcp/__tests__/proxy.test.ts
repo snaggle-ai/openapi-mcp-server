@@ -2,7 +2,7 @@ import { MCPProxy } from '../proxy'
 import { OpenAPIV3 } from 'openapi-types'
 import { HttpClient } from '../../client/http-client'
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js'
-import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 
 // Mock the dependencies
 vi.mock('../../client/http-client')
