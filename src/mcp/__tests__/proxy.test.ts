@@ -2,7 +2,7 @@ import { MCPProxy } from '../proxy'
 import { OpenAPIV3 } from 'openapi-types'
 import { HttpClient } from '../../client/http-client'
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js'
-import { describe, expect, it, beforeEach, vi } from 'vitest'
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
 
 // Mock the dependencies
 vi.mock('../../client/http-client')
@@ -123,11 +123,86 @@ describe('MCPProxy', () => {
     })
   })
 
+  describe('parseHeadersFromEnv', () => {
+    const originalEnv = process.env;
+
+    beforeEach(() => {
+      process.env = { ...originalEnv };
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+    });
+
+    it('should parse valid JSON headers from env', () => {
+      process.env.OPENAPI_MCP_HEADERS = JSON.stringify({
+        'Authorization': 'Bearer token123',
+        'X-Custom-Header': 'test'
+      });
+
+      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec);
+      expect(HttpClient).toHaveBeenCalledWith(
+        expect.objectContaining({
+          headers: {
+            'Authorization': 'Bearer token123',
+            'X-Custom-Header': 'test'
+          }
+        }),
+        expect.anything()
+      );
+    });
+
+    it('should return empty object when env var is not set', () => {
+      delete process.env.OPENAPI_MCP_HEADERS;
+
+      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec);
+      expect(HttpClient).toHaveBeenCalledWith(
+        expect.objectContaining({
+          headers: {}
+        }),
+        expect.anything()
+      );
+    });
+
+    it('should return empty object and warn on invalid JSON', () => {
+      const consoleSpy = vi.spyOn(console, 'warn');
+      process.env.OPENAPI_MCP_HEADERS = 'invalid json';
+
+      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec);
+      expect(HttpClient).toHaveBeenCalledWith(
+        expect.objectContaining({
+          headers: {}
+        }),
+        expect.anything()
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to parse OPENAPI_MCP_HEADERS environment variable:',
+        expect.any(Error)
+      );
+    });
+
+    it('should return empty object and warn on non-object JSON', () => {
+      const consoleSpy = vi.spyOn(console, 'warn');
+      process.env.OPENAPI_MCP_HEADERS = '"string"';
+
+      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec);
+      expect(HttpClient).toHaveBeenCalledWith(
+        expect.objectContaining({
+          headers: {}
+        }),
+        expect.anything()
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'OPENAPI_MCP_HEADERS environment variable must be a JSON object, got:',
+        'string'
+      );
+    });
+  });
   describe('connect', () => {
     it('should connect to transport', async () => {
       const mockTransport = {} as Transport
       await proxy.connect(mockTransport)
-      
+
       const server = (proxy as any).server
       expect(server.connect).toHaveBeenCalledWith(mockTransport)
     })

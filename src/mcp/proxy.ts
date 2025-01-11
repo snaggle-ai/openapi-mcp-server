@@ -11,6 +11,7 @@ import { HttpClient, HttpClientError } from '../client/http-client'
 import { OpenAPIV3 } from 'openapi-types'
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js'
 
+
 type PathItemObject = OpenAPIV3.PathItemObject & {
   get?: OpenAPIV3.OperationObject
   put?: OpenAPIV3.OperationObject
@@ -19,7 +20,7 @@ type PathItemObject = OpenAPIV3.PathItemObject & {
   patch?: OpenAPIV3.OperationObject
 }
 
-type NewToolDefinition = { 
+type NewToolDefinition = {
   methods: Array<{
     name: string;
     description: string;
@@ -46,8 +47,11 @@ export class MCPProxy {
     if (!baseUrl) {
       throw new Error('No base URL found in OpenAPI spec');
     }
-    this.httpClient = new HttpClient({ baseUrl }, openApiSpec)
-    
+    this.httpClient = new HttpClient({
+      baseUrl,
+      headers: this.parseHeadersFromEnv()
+    }, openApiSpec)
+
     // Convert OpenAPI spec to MCP tools
     const converter = new OpenAPIToMCPConverter(openApiSpec)
     const { tools, openApiLookup } = converter.convertToMCPTools();
@@ -130,6 +134,25 @@ export class MCPProxy {
     return this.openApiLookup[operationId] ?? null
   }
 
+  private parseHeadersFromEnv(): Record<string, string> {
+    const headersJson = process.env.OPENAPI_MCP_HEADERS;
+    if (!headersJson) {
+      return {};
+    }
+
+    try {
+      const headers = JSON.parse(headersJson);
+      if (typeof headers !== 'object' || headers === null) {
+        console.warn('OPENAPI_MCP_HEADERS environment variable must be a JSON object, got:', typeof headers);
+        return {};
+      }
+      return headers;
+    } catch (error) {
+      console.warn('Failed to parse OPENAPI_MCP_HEADERS environment variable:', error);
+      return {};
+    }
+  }
+
   private getContentType(headers: Headers): 'text' | 'image' | 'binary' {
     const contentType = headers.get('content-type')
     if (!contentType) return 'binary'
@@ -146,4 +169,4 @@ export class MCPProxy {
     // The SDK will handle stdio communication
     await this.server.connect(transport)
   }
-} 
+}
