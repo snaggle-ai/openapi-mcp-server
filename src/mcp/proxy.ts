@@ -152,6 +152,7 @@ export class MCPProxy {
       return {};
     }
   }
+
   private getContentType(headers: Headers): 'text' | 'image' | 'binary' {
     const contentType = headers.get('content-type')
     if (!contentType) return 'binary'
