@@ -286,26 +286,6 @@ The `HttpClient` handles:
 - File uploads (multipart/form-data)
 - Error handling
 
-## CLI Example
-
-The repository includes a CLI example that demonstrates using both the converter and HTTP client. You can find it in the `examples/cli` directory.
-
-To use the CLI:
-
-```bash
-# List all available methods
-ts-node examples/cli/openapi-client.ts path/to/spec.json list
-
-# Call a specific method
-ts-node examples/cli/openapi-client.ts path/to/spec.json call API-getPetById '{"petId": 123}'
-```
-
-The CLI example shows how to:
-1. Load and parse OpenAPI specs
-2. List available methods and their parameters
-3. Make API calls with parameters
-4. Handle responses and errors
-
 ## License
 
 MIT
