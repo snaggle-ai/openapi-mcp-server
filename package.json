@@ -6,7 +6,7 @@
     "server",
     "proxy"
   ],
-  "version": "1.0.6-beta4",
+  "version": "1.1.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -17,7 +17,7 @@
     "parse-openapi": "tsx scripts/parse-openapi.ts"
   },
   "bin": {
-    "openapi-mcp-server": "./dist/cli.cjs"
+    "openapi-mcp-server": "./dist/cli.mjs"
   },
   "exports": {
     ".": {
@@ -26,15 +26,12 @@
     }
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.3",
-    "@types/form-data": "^2.5.2",
+    "@modelcontextprotocol/sdk": "^1.1.1",
     "axios": "^1.7.9",
     "chalk": "^5.3.0",
     "express": "^4.21.2",
     "form-data": "^4.0.1",
-    "json-schema-to-zod": "^2.6.0",
     "zod": "3.24.1",
-    "multer": "1.4.5-lts.1",
     "mustache": "^4.2.0",
     "openapi-client-axios": "^7.5.5",
     "openapi-schema-validator": "^12.1.3",
