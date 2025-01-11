@@ -1,6 +1,6 @@
-import { OpenAPIV3 } from 'openapi-types'
+import type { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 import OpenAPIClientAxios from 'openapi-client-axios'
-import { AxiosInstance } from 'axios'
+import type { AxiosInstance } from 'axios'
 import FormData from 'form-data'
 import fs from 'fs'
 import { isFileUploadParameter } from '../openapi/file-upload'
@@ -32,7 +32,7 @@ export class HttpClient {
   private api: Promise<AxiosInstance>
   private client: OpenAPIClientAxios
 
-  constructor(private config: HttpClientConfig, private openApiSpec: OpenAPIV3.Document) {
+  constructor(config: HttpClientConfig, openApiSpec: OpenAPIV3.Document | OpenAPIV3_1.Document) {
     // @ts-expect-error
     this.client = new (OpenAPIClientAxios.default ?? OpenAPIClientAxios)({ 
       definition: openApiSpec,

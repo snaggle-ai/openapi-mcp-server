@@ -66,8 +66,10 @@ export async function main(args: string[] = process.argv.slice(2)) {
   return proxy.connect(new StdioServerTransport())
 }
 
+const shouldStart = process.argv[1].endsWith('openapi-mcp-server')
 // Only run main if this is the entry point
-if (require.main === module) {
+if (shouldStart) {
+  console.error('Starting proxy...')
   main().catch(error => {
     if (error instanceof ValidationError) {
       console.error('Invalid OpenAPI 3.1 specification:')

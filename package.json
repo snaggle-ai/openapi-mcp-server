@@ -1,7 +1,12 @@
 {
   "name": "openapi-mcp-server",
-  "keywords": ["openapi", "mcp", "server", "proxy"],
-  "version": "1.0.5",
+  "keywords": [
+    "openapi",
+    "mcp",
+    "server",
+    "proxy"
+  ],
+  "version": "1.1.0",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -12,34 +17,46 @@
     "parse-openapi": "tsx scripts/parse-openapi.ts"
   },
   "bin": {
-    "openapi-mcp-server": "./dist/cli.cjs"
+    "openapi-mcp-server": "./dist/cli.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts"
+    }
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.3",
-    "@types/form-data": "^2.5.2",
+    "@modelcontextprotocol/sdk": "^1.1.1",
     "axios": "^1.7.9",
     "chalk": "^5.3.0",
     "express": "^4.21.2",
     "form-data": "^4.0.1",
-    "multer": "1.4.5-lts.1",
+    "zod": "3.24.1",
+    "mustache": "^4.2.0",
     "openapi-client-axios": "^7.5.5",
     "openapi-schema-validator": "^12.1.3",
     "openapi-types": "^12.1.3",
     "which": "^5.0.0"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.33.1",
     "@types/express": "^5.0.0",
     "@types/json-schema": "^7.0.15",
+    "@types/mustache": "^4.2.5",
     "@types/node": "^20.11.24",
     "@types/which": "^3.0.4",
     "esbuild": "^0.24.0",
+    "openai": "^4.77.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3",
     "vitest": "^2.1.8"
   },
   "description": "OpenAPI Model Context Protocol Proxy",
-  "main": "./dist/cli.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
+    "src",
     "README.md"
   ],
   "engines": {
