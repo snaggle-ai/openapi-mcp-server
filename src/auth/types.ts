@@ -23,4 +23,4 @@ export interface TemplateContext {
   securityScheme?: SecurityScheme
   servers?: Server[]
   args: Record<string, string>
-} 
+}

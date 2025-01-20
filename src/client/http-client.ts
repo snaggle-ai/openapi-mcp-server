@@ -21,7 +21,7 @@ export class HttpClientError extends Error {
     message: string,
     public status: number,
     public data: any,
-    public headers?: Headers
+    public headers?: Headers,
   ) {
     super(`${status} ${message}`)
     this.name = 'HttpClientError'
@@ -34,15 +34,15 @@ export class HttpClient {
 
   constructor(config: HttpClientConfig, openApiSpec: OpenAPIV3.Document | OpenAPIV3_1.Document) {
     // @ts-expect-error
-    this.client = new (OpenAPIClientAxios.default ?? OpenAPIClientAxios)({ 
+    this.client = new (OpenAPIClientAxios.default ?? OpenAPIClientAxios)({
       definition: openApiSpec,
       axiosConfigDefaults: {
         baseURL: config.baseUrl,
         headers: {
           'Content-Type': 'application/json',
-          ...config.headers
-        }
-      }
+          ...config.headers,
+        },
+      },
     })
     this.api = this.client.init()
   }
@@ -52,14 +52,14 @@ export class HttpClient {
     if (fileParams.length === 0) return null
 
     const formData = new FormData()
-    
+
     // Handle file uploads
     for (const param of fileParams) {
       const filePath = params[param]
       if (!filePath || typeof filePath !== 'string') {
         throw new Error(`File path must be provided for parameter: ${param}`)
       }
-      
+
       try {
         const fileStream = fs.createReadStream(filePath)
         formData.append(param, fileStream)
@@ -82,8 +82,8 @@ export class HttpClient {
    * Execute an OpenAPI operation
    */
   async executeOperation<T = any>(
-    operation: OpenAPIV3.OperationObject & { method: string, path: string } ,
-    params: Record<string, any> = {}
+    operation: OpenAPIV3.OperationObject & { method: string; path: string },
+    params: Record<string, any> = {},
   ): Promise<HttpClientResponse<T>> {
     const api = await this.api
     const operationId = operation.operationId
@@ -93,7 +93,7 @@ export class HttpClient {
 
     // Handle file uploads if present
     const formData = await this.prepareFileUpload(operation, params)
-    
+
     // Separate parameters based on their location
     const urlParameters: Record<string, any> = {}
     const bodyParams: Record<string, any> = formData || { ...params }
@@ -131,29 +131,30 @@ export class HttpClient {
 
     try {
       // If we have form data, we need to set the correct headers
-      const hasBody = Object.keys(bodyParams).length > 0;
-      const headers = formData ? formData.getHeaders()
-                                : { ...(hasBody ? {'Content-Type': 'application/json' } : {'Content-Type': null}) };
+      const hasBody = Object.keys(bodyParams).length > 0
+      const headers = formData
+        ? formData.getHeaders()
+        : { ...(hasBody ? { 'Content-Type': 'application/json' } : { 'Content-Type': null }) }
       const requestConfig = {
         headers: {
-          ...headers
-        }
-      };
+          ...headers,
+        },
+      }
 
       // first argument is url parameters, second is body parameters
       console.error('calling operation', { operationId, urlParameters, bodyParams, requestConfig })
       const response = await operationFn(urlParameters, hasBody ? bodyParams : undefined, requestConfig)
-      
+
       // Convert axios headers to Headers object
       const responseHeaders = new Headers()
       Object.entries(response.headers).forEach(([key, value]) => {
         if (value) responseHeaders.append(key, value.toString())
       })
-      
+
       return {
         data: response.data,
         status: response.status,
-        headers: responseHeaders
+        headers: responseHeaders,
       }
     } catch (error: any) {
       if (error.response) {
@@ -163,14 +164,9 @@ export class HttpClient {
           if (value) headers.append(key, value.toString())
         })
 
-        throw new HttpClientError(
-          error.response.statusText || 'Request failed',
-          error.response.status,
-          error.response.data,
-          headers
-        )
+        throw new HttpClientError(error.response.statusText || 'Request failed', error.response.status, error.response.data, headers)
       }
       throw error
     }
   }
-} 
+}

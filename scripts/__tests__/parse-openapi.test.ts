@@ -60,6 +60,7 @@ describe('OpenAPI Tool Conversion', () => {
       expect(tool.function.name).toBe('getPet')
       expect(tool.function.description).toBe('Get a pet by ID')
       expect(tool.function.parameters).toEqual({
+        "$defs": {},
         type: 'object',
         properties: {
           petId: {
@@ -83,6 +84,7 @@ describe('OpenAPI Tool Conversion', () => {
       expect(tool.name).toBe('getPet')
       expect(tool.description).toBe('Get a pet by ID')
       expect(tool.input_schema).toEqual({
+        "$defs": {},
         type: 'object',
         properties: {
           petId: {
@@ -154,6 +156,7 @@ describe('OpenAPI Tool Conversion', () => {
       expect(tool.function.name).toBe('createPet')
       expect(tool.function.description).toBe('Create a pet')
       expect(tool.function.parameters).toEqual({
+        "$defs": {},
         type: 'object',
         properties: {
           name: { type: 'string', description: 'The name of the pet' },
@@ -174,6 +177,7 @@ describe('OpenAPI Tool Conversion', () => {
       expect(tool.name).toBe('createPet')
       expect(tool.description).toBe('Create a pet')
       expect(tool.input_schema).toEqual({
+        "$defs": {},
         type: 'object',
         properties: {
           name: { type: 'string', description: 'The name of the pet' },

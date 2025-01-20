@@ -10,19 +10,19 @@ vi.mock('form-data')
 describe('HttpClient File Upload', () => {
   let client: HttpClient
   const mockApiInstance = {
-    uploadFile: vi.fn()
+    uploadFile: vi.fn(),
   }
 
   const baseConfig = {
     baseUrl: 'http://test.com',
-    headers: {}
+    headers: {},
   }
 
   const mockOpenApiSpec: OpenAPIV3.Document = {
     openapi: '3.0.0',
     info: {
       title: 'Test API',
-      version: '1.0.0'
+      version: '1.0.0',
     },
     paths: {
       '/upload': {
@@ -37,13 +37,13 @@ describe('HttpClient File Upload', () => {
                     type: 'object',
                     properties: {
                       success: {
-                        type: 'boolean'
-                      }
-                    }
-                  }
-                }
-              }
-            }
+                        type: 'boolean',
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
           requestBody: {
             content: {
@@ -53,19 +53,19 @@ describe('HttpClient File Upload', () => {
                   properties: {
                     file: {
                       type: 'string',
-                      format: 'binary'
+                      format: 'binary',
                     },
                     description: {
-                      type: 'string'
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   }
 
   beforeEach(() => {
@@ -79,25 +79,25 @@ describe('HttpClient File Upload', () => {
     const mockFormData = new FormData()
     const mockFileStream = { pipe: vi.fn() }
     const mockFormDataHeaders = { 'content-type': 'multipart/form-data; boundary=---123' }
-    
+
     vi.mocked(fs.createReadStream).mockReturnValue(mockFileStream as any)
     vi.mocked(FormData.prototype.append).mockImplementation(() => {})
     vi.mocked(FormData.prototype.getHeaders).mockReturnValue(mockFormDataHeaders)
-    
+
     const uploadPath = mockOpenApiSpec.paths['/upload']
     if (!uploadPath?.post) {
       throw new Error('Upload path not found in spec')
     }
-    const operation = uploadPath.post as OpenAPIV3.OperationObject & { method: string, path: string }
+    const operation = uploadPath.post as OpenAPIV3.OperationObject & { method: string; path: string }
     const params = {
       file: '/path/to/test.txt',
-      description: 'Test file'
+      description: 'Test file',
     }
 
     mockApiInstance.uploadFile.mockResolvedValue({
       data: { success: true },
       status: 200,
-      headers: {}
+      headers: {},
     })
 
     await client.executeOperation(operation, params)
@@ -105,11 +105,7 @@ describe('HttpClient File Upload', () => {
     expect(fs.createReadStream).toHaveBeenCalledWith('/path/to/test.txt')
     expect(FormData.prototype.append).toHaveBeenCalledWith('file', mockFileStream)
     expect(FormData.prototype.append).toHaveBeenCalledWith('description', 'Test file')
-    expect(mockApiInstance.uploadFile).toHaveBeenCalledWith(
-      {},
-      expect.any(FormData),
-      { headers: mockFormDataHeaders }
-    )
+    expect(mockApiInstance.uploadFile).toHaveBeenCalledWith({}, expect.any(FormData), { headers: mockFormDataHeaders })
   })
 
   it('should throw error for invalid file path', async () => {
@@ -121,14 +117,13 @@ describe('HttpClient File Upload', () => {
     if (!uploadPath?.post) {
       throw new Error('Upload path not found in spec')
     }
-    const operation = uploadPath.post as OpenAPIV3.OperationObject & { method: string, path: string }
+    const operation = uploadPath.post as OpenAPIV3.OperationObject & { method: string; path: string }
     const params = {
       file: '/nonexistent/file.txt',
-      description: 'Test file'
+      description: 'Test file',
     }
 
-    await expect(client.executeOperation(operation, params))
-      .rejects.toThrow('Failed to read file at /nonexistent/file.txt')
+    await expect(client.executeOperation(operation, params)).rejects.toThrow('Failed to read file at /nonexistent/file.txt')
   })
 
   it('should handle multiple file uploads', async () => {
@@ -136,13 +131,13 @@ describe('HttpClient File Upload', () => {
     const mockFileStream1 = { pipe: vi.fn() }
     const mockFileStream2 = { pipe: vi.fn() }
     const mockFormDataHeaders = { 'content-type': 'multipart/form-data; boundary=---123' }
-    
+
     vi.mocked(fs.createReadStream)
       .mockReturnValueOnce(mockFileStream1 as any)
       .mockReturnValueOnce(mockFileStream2 as any)
     vi.mocked(FormData.prototype.append).mockImplementation(() => {})
     vi.mocked(FormData.prototype.getHeaders).mockReturnValue(mockFormDataHeaders)
-    
+
     const operation: OpenAPIV3.OperationObject = {
       operationId: 'uploadFile',
       responses: {
@@ -154,13 +149,13 @@ describe('HttpClient File Upload', () => {
                 type: 'object',
                 properties: {
                   success: {
-                    type: 'boolean'
-                  }
-                }
-              }
-            }
-          }
-        }
+                    type: 'boolean',
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       requestBody: {
         content: {
@@ -170,45 +165,41 @@ describe('HttpClient File Upload', () => {
               properties: {
                 file1: {
                   type: 'string',
-                  format: 'binary'
+                  format: 'binary',
                 },
                 file2: {
                   type: 'string',
-                  format: 'binary'
+                  format: 'binary',
                 },
                 description: {
-                  type: 'string'
-                }
-              }
-            }
-          }
-        }
-      }
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
     }
 
     const params = {
       file1: '/path/to/test1.txt',
       file2: '/path/to/test2.txt',
-      description: 'Test files'
+      description: 'Test files',
     }
 
     mockApiInstance.uploadFile.mockResolvedValue({
       data: { success: true },
       status: 200,
-      headers: {}
+      headers: {},
     })
 
-    await client.executeOperation(operation as OpenAPIV3.OperationObject & { method: string, path: string }, params)
+    await client.executeOperation(operation as OpenAPIV3.OperationObject & { method: string; path: string }, params)
 
     expect(fs.createReadStream).toHaveBeenCalledWith('/path/to/test1.txt')
     expect(fs.createReadStream).toHaveBeenCalledWith('/path/to/test2.txt')
     expect(FormData.prototype.append).toHaveBeenCalledWith('file1', mockFileStream1)
     expect(FormData.prototype.append).toHaveBeenCalledWith('file2', mockFileStream2)
     expect(FormData.prototype.append).toHaveBeenCalledWith('description', 'Test files')
-    expect(mockApiInstance.uploadFile).toHaveBeenCalledWith(
-      {},
-      expect.any(FormData),
-      { headers: mockFormDataHeaders }
-    )
+    expect(mockApiInstance.uploadFile).toHaveBeenCalledWith({}, expect.any(FormData), { headers: mockFormDataHeaders })
   })
-}) 
+})

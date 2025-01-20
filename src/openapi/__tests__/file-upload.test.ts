@@ -8,8 +8,8 @@ describe('File Upload Detection', () => {
       operationId: 'uploadFile',
       responses: {
         '200': {
-          description: 'File uploaded successfully'
-        }
+          description: 'File uploaded successfully',
+        },
       },
       requestBody: {
         content: {
@@ -19,16 +19,16 @@ describe('File Upload Detection', () => {
               properties: {
                 file: {
                   type: 'string',
-                  format: 'binary'
+                  format: 'binary',
                 },
                 additionalInfo: {
-                  type: 'string'
-                }
-              }
-            }
-          }
-        }
-      }
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
     }
 
     const fileParams = isFileUploadParameter(operation)
@@ -40,8 +40,8 @@ describe('File Upload Detection', () => {
       operationId: 'createUser',
       responses: {
         '200': {
-          description: 'User created successfully'
-        }
+          description: 'User created successfully',
+        },
       },
       requestBody: {
         content: {
@@ -50,13 +50,13 @@ describe('File Upload Detection', () => {
               type: 'object',
               properties: {
                 name: {
-                  type: 'string'
-                }
-              }
-            }
-          }
-        }
-      }
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
     }
 
     const fileParams = isFileUploadParameter(operation)
@@ -68,8 +68,8 @@ describe('File Upload Detection', () => {
       operationId: 'uploadFiles',
       responses: {
         '200': {
-          description: 'Files uploaded successfully'
-        }
+          description: 'Files uploaded successfully',
+        },
       },
       requestBody: {
         content: {
@@ -81,20 +81,20 @@ describe('File Upload Detection', () => {
                   type: 'array',
                   items: {
                     type: 'string',
-                    format: 'binary'
-                  }
+                    format: 'binary',
+                  },
                 },
                 description: {
-                  type: 'string'
-                }
-              }
-            }
-          }
-        }
-      }
+                  type: 'string',
+                },
+              },
+            },
+          },
+        },
+      },
     }
 
     const fileParams = isFileUploadParameter(operation)
     expect(fileParams).toEqual(['files'])
   })
-}) 
+})

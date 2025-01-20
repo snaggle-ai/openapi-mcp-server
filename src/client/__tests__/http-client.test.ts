@@ -8,12 +8,12 @@ vi.mock('openapi-client-axios', () => {
   const mockApi = {
     getPet: vi.fn(),
     testOperation: vi.fn(),
-    complexOperation: vi.fn()
+    complexOperation: vi.fn(),
   }
   return {
     default: vi.fn().mockImplementation(() => ({
-      init: vi.fn().mockResolvedValue(mockApi)
-    }))
+      init: vi.fn().mockResolvedValue(mockApi),
+    })),
   }
 })
 
@@ -33,25 +33,25 @@ describe('HttpClient', () => {
               name: 'petId',
               in: 'path',
               required: true,
-              schema: { type: 'integer' }
-            }
+              schema: { type: 'integer' },
+            },
           ],
           responses: {
             '200': {
               description: 'OK',
               content: {
                 'application/json': {
-                  schema: { type: 'object' }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+                  schema: { type: 'object' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   }
 
-  const getPetOperation = sampleSpec.paths['/pets/{petId}']?.get as OpenAPIV3.OperationObject & { method: string, path: string }
+  const getPetOperation = sampleSpec.paths['/pets/{petId}']?.get as OpenAPIV3.OperationObject & { method: string; path: string }
   if (!getPetOperation) {
     throw new Error('Test setup error: getPet operation not found in sample spec')
   }
@@ -72,16 +72,13 @@ describe('HttpClient', () => {
       data: { id: 1, name: 'Fluffy' },
       status: 200,
       headers: {
-        'content-type': 'application/json'
-      }
+        'content-type': 'application/json',
+      },
     }
 
     mockApi.getPet.mockResolvedValueOnce(mockResponse)
 
-    const response = await client.executeOperation(
-      getPetOperation,
-      { petId: 1 }
-    )
+    const response = await client.executeOperation(getPetOperation, { petId: 1 })
 
     // Note GET requests should have a null Content-Type header!
     expect(mockApi.getPet).toHaveBeenCalledWith({ petId: 1 }, undefined, { headers: { 'Content-Type': null } })
@@ -92,36 +89,32 @@ describe('HttpClient', () => {
   })
 
   it('throws error when operation ID is missing', async () => {
-    const operationWithoutId: OpenAPIV3.OperationObject & { method: string, path: string } = {
+    const operationWithoutId: OpenAPIV3.OperationObject & { method: string; path: string } = {
       method: 'GET',
       path: '/unknown',
       responses: {
         '200': {
-          description: 'OK'
-        }
-      }
+          description: 'OK',
+        },
+      },
     }
 
-    await expect(
-      client.executeOperation(operationWithoutId)
-    ).rejects.toThrow('Operation ID is required')
+    await expect(client.executeOperation(operationWithoutId)).rejects.toThrow('Operation ID is required')
   })
 
   it('throws error when operation is not found', async () => {
-    const operation: OpenAPIV3.OperationObject & { method: string, path: string } = {
+    const operation: OpenAPIV3.OperationObject & { method: string; path: string } = {
       method: 'GET',
       path: '/unknown',
       operationId: 'nonexistentOperation',
       responses: {
         '200': {
-          description: 'OK'
-        }
-      }
+          description: 'OK',
+        },
+      },
     }
 
-    await expect(
-      client.executeOperation(operation)
-    ).rejects.toThrow('Operation nonexistentOperation not found')
+    await expect(client.executeOperation(operation)).rejects.toThrow('Operation nonexistentOperation not found')
   })
 
   it('handles API errors correctly', async () => {
@@ -132,28 +125,23 @@ describe('HttpClient', () => {
         data: {
           code: 'RESOURCE_NOT_FOUND',
           message: 'Pet not found',
-          petId: 999
+          petId: 999,
         },
         headers: {
-          'content-type': 'application/json'
-        }
-      }
+          'content-type': 'application/json',
+        },
+      },
     }
     mockApi.getPet.mockRejectedValueOnce(error)
 
-    await expect(
-      client.executeOperation(
-        getPetOperation,
-        { petId: 999 }
-      )
-    ).rejects.toMatchObject({
+    await expect(client.executeOperation(getPetOperation, { petId: 999 })).rejects.toMatchObject({
       status: 404,
       message: '404 Not Found',
       data: {
         code: 'RESOURCE_NOT_FOUND',
         message: 'Pet not found',
-        petId: 999
-      }
+        petId: 999,
+      },
     })
   })
 
@@ -168,27 +156,22 @@ describe('HttpClient', () => {
           errors: [
             {
               field: 'age',
-              message: 'Age must be a positive number'
+              message: 'Age must be a positive number',
             },
             {
               field: 'name',
-              message: 'Name is required'
-            }
-          ]
+              message: 'Name is required',
+            },
+          ],
         },
         headers: {
-          'content-type': 'application/json'
-        }
-      }
+          'content-type': 'application/json',
+        },
+      },
     }
     mockApi.getPet.mockRejectedValueOnce(error)
 
-    await expect(
-      client.executeOperation(
-        getPetOperation,
-        { petId: 1 }
-      )
-    ).rejects.toMatchObject({
+    await expect(client.executeOperation(getPetOperation, { petId: 1 })).rejects.toMatchObject({
       status: 400,
       message: '400 Bad Request',
       data: {
@@ -197,14 +180,14 @@ describe('HttpClient', () => {
         errors: [
           {
             field: 'age',
-            message: 'Age must be a positive number'
+            message: 'Age must be a positive number',
           },
           {
             field: 'name',
-            message: 'Name is required'
-          }
-        ]
-      }
+            message: 'Name is required',
+          },
+        ],
+      },
     })
   })
 
@@ -215,21 +198,16 @@ describe('HttpClient', () => {
         statusText: 'Internal Server Error',
         data: '<html><body><h1>500 Internal Server Error</h1></body></html>',
         headers: {
-          'content-type': 'text/html'
-        }
-      }
+          'content-type': 'text/html',
+        },
+      },
     }
     mockApi.getPet.mockRejectedValueOnce(error)
 
-    await expect(
-      client.executeOperation(
-        getPetOperation,
-        { petId: 1 }
-      )
-    ).rejects.toMatchObject({
+    await expect(client.executeOperation(getPetOperation, { petId: 1 })).rejects.toMatchObject({
       status: 500,
       message: '500 Internal Server Error',
-      data: '<html><body><h1>500 Internal Server Error</h1></body></html>'
+      data: '<html><body><h1>500 Internal Server Error</h1></body></html>',
     })
   })
 
@@ -241,29 +219,24 @@ describe('HttpClient', () => {
         data: {
           code: 'RATE_LIMIT_EXCEEDED',
           message: 'Rate limit exceeded',
-          retryAfter: 60
+          retryAfter: 60,
         },
         headers: {
           'content-type': 'application/json',
-          'retry-after': '60'
-        }
-      }
+          'retry-after': '60',
+        },
+      },
     }
     mockApi.getPet.mockRejectedValueOnce(error)
 
-    await expect(
-      client.executeOperation(
-        getPetOperation,
-        { petId: 1 }
-      )
-    ).rejects.toMatchObject({
+    await expect(client.executeOperation(getPetOperation, { petId: 1 })).rejects.toMatchObject({
       status: 429,
       message: '429 Too Many Requests',
       data: {
         code: 'RATE_LIMIT_EXCEEDED',
         message: 'Rate limit exceeded',
-        retryAfter: 60
-      }
+        retryAfter: 60,
+      },
     })
   })
 
@@ -272,9 +245,9 @@ describe('HttpClient', () => {
     mockApi.testOperation = vi.fn().mockResolvedValue({
       data: {},
       status: 200,
-      headers: {}
+      headers: {},
     })
-    
+
     const testSpec: OpenAPIV3.Document = {
       openapi: '3.0.0',
       info: { title: 'Test API', version: '1.0.0' },
@@ -288,11 +261,11 @@ describe('HttpClient', () => {
                   schema: {
                     type: 'object',
                     properties: {
-                      foo: { type: 'string' }
-                    }
-                  }
-                }
-              }
+                      foo: { type: 'string' },
+                    },
+                  },
+                },
+              },
             },
             responses: {
               '200': {
@@ -300,43 +273,37 @@ describe('HttpClient', () => {
                 content: {
                   'application/json': {
                     schema: {
-                      type: 'object'
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                      type: 'object',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     }
 
-    const postOperation = testSpec.paths['/test']?.post as OpenAPIV3.OperationObject & { method: string, path: string }
+    const postOperation = testSpec.paths['/test']?.post as OpenAPIV3.OperationObject & { method: string; path: string }
     if (!postOperation) {
       throw new Error('Test setup error: post operation not found')
     }
 
     const client = new HttpClient({ baseUrl: 'http://test.com' }, testSpec)
-    
-    await client.executeOperation(
-      postOperation,
-      { foo: 'bar' }
-    )
 
-    expect(mockApi.testOperation).toHaveBeenCalledWith({},
-      { foo: 'bar' },
-      { headers: { 'Content-Type': 'application/json' } }
-    )
+    await client.executeOperation(postOperation, { foo: 'bar' })
+
+    expect(mockApi.testOperation).toHaveBeenCalledWith({}, { foo: 'bar' }, { headers: { 'Content-Type': 'application/json' } })
   })
 
   it('should handle query, path, and body parameters correctly', async () => {
     mockApi.complexOperation = vi.fn().mockResolvedValue({
-        data: { success: true },
-        status: 200,
-        headers: {
-          'content-type': 'application/json'
-        }
-    });
+      data: { success: true },
+      status: 200,
+      headers: {
+        'content-type': 'application/json',
+      },
+    })
 
     const complexSpec: OpenAPIV3.Document = {
       openapi: '3.0.0',
@@ -350,14 +317,14 @@ describe('HttpClient', () => {
                 name: 'userId',
                 in: 'path',
                 required: true,
-                schema: { type: 'integer' }
+                schema: { type: 'integer' },
               },
               {
                 name: 'include',
                 in: 'query',
                 required: false,
-                schema: { type: 'string' }
-              }
+                schema: { type: 'string' },
+              },
             ],
             requestBody: {
               content: {
@@ -366,11 +333,11 @@ describe('HttpClient', () => {
                     type: 'object',
                     properties: {
                       title: { type: 'string' },
-                      content: { type: 'string' }
-                    }
-                  }
-                }
-              }
+                      content: { type: 'string' },
+                    },
+                  },
+                },
+              },
             },
             responses: {
               '200': {
@@ -380,48 +347,48 @@ describe('HttpClient', () => {
                     schema: {
                       type: 'object',
                       properties: {
-                        success: { type: 'boolean' }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                        success: { type: 'boolean' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     }
 
-    const complexOperation = complexSpec.paths['/users/{userId}/posts']?.post as OpenAPIV3.OperationObject & { method: string, path: string }
+    const complexOperation = complexSpec.paths['/users/{userId}/posts']?.post as OpenAPIV3.OperationObject & {
+      method: string
+      path: string
+    }
     if (!complexOperation) {
       throw new Error('Test setup error: complex operation not found')
     }
 
     const client = new HttpClient({ baseUrl: 'http://test.com' }, complexSpec)
-    
-    await client.executeOperation(
-      complexOperation,
-      {
-        // Path parameter
-        userId: 123,
-        // Query parameter
-        include: 'comments',
-        // Body parameters
-        title: 'Test Post',
-        content: 'Test Content'
-      }
-    )
+
+    await client.executeOperation(complexOperation, {
+      // Path parameter
+      userId: 123,
+      // Query parameter
+      include: 'comments',
+      // Body parameters
+      title: 'Test Post',
+      content: 'Test Content',
+    })
 
     expect(mockApi.complexOperation).toHaveBeenCalledWith(
       {
         userId: 123,
-        include: 'comments'
+        include: 'comments',
       },
       {
         title: 'Test Post',
-        content: 'Test Content'
+        content: 'Test Content',
       },
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } },
     )
   })
 
@@ -436,13 +403,13 @@ describe('HttpClient', () => {
             {
               name: 'queryParam',
               in: 'query',
-              schema: { type: 'string' }
+              schema: { type: 'string' },
             },
             {
               name: 'pathParam',
               in: 'path',
-              schema: { type: 'string' }
-            }
+              schema: { type: 'string' },
+            },
           ],
           requestBody: {
             content: {
@@ -450,27 +417,27 @@ describe('HttpClient', () => {
                 schema: {
                   type: 'object',
                   properties: {
-                    bodyParam: { type: 'string' }
-                  }
-                }
-              }
-            }
+                    bodyParam: { type: 'string' },
+                  },
+                },
+              },
+            },
           },
           responses: {
             '200': {
-              description: 'Success'
+              description: 'Success',
             },
             '400': {
-              description: 'Bad Request'
-            }
-          }
-        }
-      }
-    }
+              description: 'Bad Request',
+            },
+          },
+        },
+      },
+    },
   }
 
   const mockConfig = {
-    baseUrl: 'http://test-api.com'
+    baseUrl: 'http://test-api.com',
   }
 
   beforeEach(() => {
@@ -483,24 +450,24 @@ describe('HttpClient', () => {
         data: {
           code: 'VALIDATION_ERROR',
           message: 'Invalid input',
-          details: ['Field x is required']
+          details: ['Field x is required'],
         },
         status: 400,
         statusText: 'Bad Request',
         headers: {
-          'content-type': 'application/json'
-        }
-      }
+          'content-type': 'application/json',
+        },
+      },
     }
 
     // Mock axios instance
     const mockAxiosInstance = {
-      testOperation: vi.fn().mockRejectedValue(errorResponse)
+      testOperation: vi.fn().mockRejectedValue(errorResponse),
     }
 
     // Mock the OpenAPIClientAxios initialization
     const MockOpenAPIClientAxios = vi.fn().mockImplementation(() => ({
-      init: () => Promise.resolve(mockAxiosInstance)
+      init: () => Promise.resolve(mockAxiosInstance),
     }))
 
     vi.mocked(OpenAPIClientAxios).mockImplementation(() => MockOpenAPIClientAxios())
@@ -512,10 +479,7 @@ describe('HttpClient', () => {
     }
 
     try {
-      await client.executeOperation(
-        operation as OpenAPIV3.OperationObject & { method: string, path: string },
-        {}
-      )
+      await client.executeOperation(operation as OpenAPIV3.OperationObject & { method: string; path: string }, {})
       // Should not reach here
       expect(true).toBe(false)
     } catch (error: any) {
@@ -523,7 +487,7 @@ describe('HttpClient', () => {
       expect(error.data).toEqual({
         code: 'VALIDATION_ERROR',
         message: 'Invalid input',
-        details: ['Field x is required']
+        details: ['Field x is required'],
       })
       expect(error.message).toBe('400 Bad Request')
     }
@@ -534,12 +498,12 @@ describe('HttpClient', () => {
       testOperation: vi.fn().mockResolvedValue({
         data: { success: true },
         status: 200,
-        headers: { 'content-type': 'application/json' }
-      })
+        headers: { 'content-type': 'application/json' },
+      }),
     }
 
     const MockOpenAPIClientAxios = vi.fn().mockImplementation(() => ({
-      init: () => Promise.resolve(mockAxiosInstance)
+      init: () => Promise.resolve(mockAxiosInstance),
     }))
 
     vi.mocked(OpenAPIClientAxios).mockImplementation(() => MockOpenAPIClientAxios())
@@ -550,27 +514,24 @@ describe('HttpClient', () => {
       throw new Error('Operation not found in mock spec')
     }
 
-    const response = await client.executeOperation(
-      operation as OpenAPIV3.OperationObject & { method: string, path: string },
-      {
-        queryParam: 'query1',
-        pathParam: 'path1',
-        bodyParam: 'body1'
-      }
-    )
+    const response = await client.executeOperation(operation as OpenAPIV3.OperationObject & { method: string; path: string }, {
+      queryParam: 'query1',
+      pathParam: 'path1',
+      bodyParam: 'body1',
+    })
 
     expect(mockAxiosInstance.testOperation).toHaveBeenCalledWith(
       {
         queryParam: 'query1',
-        pathParam: 'path1'
+        pathParam: 'path1',
       },
       {
-        bodyParam: 'body1'
+        bodyParam: 'body1',
       },
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json' } },
     )
 
     // Additional check to ensure headers are correctly processed
     expect(response.headers.get('content-type')).toBe('application/json')
   })
-}) 
+})

@@ -17,8 +17,8 @@ describe('OpenAPI Multipart Form Parser', () => {
                 name: 'id',
                 in: 'path',
                 required: true,
-                schema: { type: 'integer' }
-              }
+                schema: { type: 'integer' },
+              },
             ],
             requestBody: {
               required: true,
@@ -31,25 +31,25 @@ describe('OpenAPI Multipart Form Parser', () => {
                       photo: {
                         type: 'string',
                         format: 'binary',
-                        description: 'The photo to upload'
+                        description: 'The photo to upload',
                       },
                       caption: {
                         type: 'string',
-                        description: 'Optional caption for the photo'
-                      }
-                    }
-                  }
-                }
-              }
+                        description: 'Optional caption for the photo',
+                      },
+                    },
+                  },
+                },
+              },
             },
             responses: {
               '201': {
-                description: 'Photo uploaded successfully'
-              }
-            }
-          }
-        }
-      }
+                description: 'Photo uploaded successfully',
+              },
+            },
+          },
+        },
+      },
     }
 
     const converter = new OpenAPIToMCPConverter(spec)
@@ -61,21 +61,21 @@ describe('OpenAPI Multipart Form Parser', () => {
     const [method] = tool.methods
     expect(method.name).toBe('uploadPetPhoto')
     expect(method.description).toContain('Upload a photo for a pet')
-    
+
     // Check parameters
     expect(method.inputSchema.properties).toEqual({
       id: {
-        type: 'integer'
+        type: 'integer',
       },
       photo: {
         type: 'string',
         format: 'uri-reference',
-        description: expect.stringContaining('The photo to upload (absolute paths to local files)')
+        description: expect.stringContaining('The photo to upload (absolute paths to local files)'),
       },
       caption: {
         type: 'string',
-        description: expect.stringContaining('Optional caption')
-      }
+        description: expect.stringContaining('Optional caption'),
+      },
     })
 
     expect(method.inputSchema.required).toContain('id')
@@ -97,8 +97,8 @@ describe('OpenAPI Multipart Form Parser', () => {
                 name: 'id',
                 in: 'path',
                 required: true,
-                schema: { type: 'integer' }
-              }
+                schema: { type: 'integer' },
+              },
             ],
             requestBody: {
               required: true,
@@ -112,30 +112,30 @@ describe('OpenAPI Multipart Form Parser', () => {
                         type: 'array',
                         items: {
                           type: 'string',
-                          format: 'binary'
+                          format: 'binary',
                         },
-                        description: 'The documents to upload (max 5 files)'
+                        description: 'The documents to upload (max 5 files)',
                       },
                       tags: {
                         type: 'array',
                         items: {
-                          type: 'string'
+                          type: 'string',
                         },
-                        description: 'Optional tags for the documents'
-                      }
-                    }
-                  }
-                }
-              }
+                        description: 'Optional tags for the documents',
+                      },
+                    },
+                  },
+                },
+              },
             },
             responses: {
               '201': {
-                description: 'Documents uploaded successfully'
-              }
-            }
-          }
-        }
-      }
+                description: 'Documents uploaded successfully',
+              },
+            },
+          },
+        },
+      },
     }
 
     const converter = new OpenAPIToMCPConverter(spec)
@@ -147,28 +147,28 @@ describe('OpenAPI Multipart Form Parser', () => {
     const [method] = tool.methods
     expect(method.name).toBe('uploadPetDocuments')
     expect(method.description).toContain('Upload multiple documents')
-    
+
     // Check parameters
     expect(method.inputSchema.properties).toEqual({
       id: {
-        type: 'integer'
+        type: 'integer',
       },
       documents: {
         type: 'array',
         items: {
           type: 'string',
           format: 'uri-reference',
-          description: 'absolute paths to local files'
+          description: 'absolute paths to local files',
         },
-        description: expect.stringContaining('max 5 files')
+        description: expect.stringContaining('max 5 files'),
       },
       tags: {
         type: 'array',
         items: {
-          type: 'string'
+          type: 'string',
         },
-        description: expect.stringContaining('Optional tags')
-      }
+        description: expect.stringContaining('Optional tags'),
+      },
     })
 
     expect(method.inputSchema.required).toContain('id')
@@ -190,8 +190,8 @@ describe('OpenAPI Multipart Form Parser', () => {
                 name: 'id',
                 in: 'path',
                 required: true,
-                schema: { type: 'integer' }
-              }
+                schema: { type: 'integer' },
+              },
             ],
             requestBody: {
               required: true,
@@ -204,23 +204,23 @@ describe('OpenAPI Multipart Form Parser', () => {
                       avatar: {
                         type: 'string',
                         format: 'binary',
-                        description: 'Profile picture'
+                        description: 'Profile picture',
                       },
                       gallery: {
                         type: 'array',
                         items: {
                           type: 'string',
-                          format: 'binary'
+                          format: 'binary',
                         },
-                        description: 'Additional pet photos'
+                        description: 'Additional pet photos',
                       },
                       details: {
                         type: 'object',
                         properties: {
                           name: { type: 'string' },
                           age: { type: 'integer' },
-                          breed: { type: 'string' }
-                        }
+                          breed: { type: 'string' },
+                        },
                       },
                       preferences: {
                         type: 'array',
@@ -228,23 +228,23 @@ describe('OpenAPI Multipart Form Parser', () => {
                           type: 'object',
                           properties: {
                             category: { type: 'string' },
-                            value: { type: 'string' }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+                            value: { type: 'string' },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
             responses: {
               '200': {
-                description: 'Profile updated successfully'
-              }
-            }
-          }
-        }
-      }
+                description: 'Profile updated successfully',
+              },
+            },
+          },
+        },
+      },
     }
 
     const converter = new OpenAPIToMCPConverter(spec)
@@ -256,34 +256,34 @@ describe('OpenAPI Multipart Form Parser', () => {
     const [method] = tool.methods
     expect(method.name).toBe('updatePetProfile')
     expect(method.description).toContain('Update pet profile')
-    
+
     // Check parameters
     expect(method.inputSchema.properties).toEqual({
       id: {
-        type: 'integer'
+        type: 'integer',
       },
       avatar: {
         type: 'string',
         format: 'uri-reference',
-        description: expect.stringContaining('Profile picture (absolute paths to local files)')
+        description: expect.stringContaining('Profile picture (absolute paths to local files)'),
       },
       gallery: {
         type: 'array',
         items: {
           type: 'string',
           format: 'uri-reference',
-          description: 'absolute paths to local files'
+          description: 'absolute paths to local files',
         },
-        description: expect.stringContaining('Additional pet photos')
+        description: expect.stringContaining('Additional pet photos'),
       },
       details: {
         type: 'object',
         properties: {
           name: { type: 'string' },
           age: { type: 'integer' },
-          breed: { type: 'string' }
+          breed: { type: 'string' },
         },
-        additionalProperties: true
+        additionalProperties: true,
       },
       preferences: {
         type: 'array',
@@ -291,11 +291,11 @@ describe('OpenAPI Multipart Form Parser', () => {
           type: 'object',
           properties: {
             category: { type: 'string' },
-            value: { type: 'string' }
+            value: { type: 'string' },
           },
-          additionalProperties: true
-        }
-      }
+          additionalProperties: true,
+        },
+      },
     })
 
     expect(method.inputSchema.required).toContain('id')
@@ -319,8 +319,8 @@ describe('OpenAPI Multipart Form Parser', () => {
                 name: 'id',
                 in: 'path',
                 required: true,
-                schema: { type: 'integer' }
-              }
+                schema: { type: 'integer' },
+              },
             ],
             requestBody: {
               required: true,
@@ -335,35 +335,35 @@ describe('OpenAPI Multipart Form Parser', () => {
                         required: ['name'],
                         properties: {
                           name: { type: 'string' },
-                          description: { type: 'string' }
-                        }
+                          description: { type: 'string' },
+                        },
                       },
                       certificate: {
                         type: 'string',
                         format: 'binary',
-                        description: 'Optional pet certificate'
+                        description: 'Optional pet certificate',
                       },
                       vaccinations: {
                         type: 'array',
                         items: {
                           type: 'string',
-                          format: 'binary'
+                          format: 'binary',
                         },
-                        description: 'Optional vaccination records'
-                      }
-                    }
-                  }
-                }
-              }
+                        description: 'Optional vaccination records',
+                      },
+                    },
+                  },
+                },
+              },
             },
             responses: {
               '200': {
-                description: 'Metadata updated successfully'
-              }
-            }
-          }
-        }
-      }
+                description: 'Metadata updated successfully',
+              },
+            },
+          },
+        },
+      },
     }
 
     const converter = new OpenAPIToMCPConverter(spec)
@@ -379,31 +379,31 @@ describe('OpenAPI Multipart Form Parser', () => {
 
     expect(method.inputSchema.properties).toEqual({
       id: {
-        type: 'integer'
+        type: 'integer',
       },
       metadata: {
         type: 'object',
         required: ['name'],
         properties: {
           name: { type: 'string' },
-          description: { type: 'string' }
+          description: { type: 'string' },
         },
-        additionalProperties: true
+        additionalProperties: true,
       },
       certificate: {
         type: 'string',
         format: 'uri-reference',
-        description: expect.stringContaining('Optional pet certificate (absolute paths to local files)')
+        description: expect.stringContaining('Optional pet certificate (absolute paths to local files)'),
       },
       vaccinations: {
         type: 'array',
         items: {
           type: 'string',
           format: 'uri-reference',
-          description: 'absolute paths to local files'
+          description: 'absolute paths to local files',
         },
-        description: expect.stringContaining('Optional vaccination records')
-      }
+        description: expect.stringContaining('Optional vaccination records'),
+      },
     })
   })
 
@@ -421,8 +421,8 @@ describe('OpenAPI Multipart Form Parser', () => {
                 name: 'id',
                 in: 'path',
                 required: true,
-                schema: { type: 'integer' }
-              }
+                schema: { type: 'integer' },
+              },
             ],
             requestBody: {
               required: true,
@@ -447,31 +447,31 @@ describe('OpenAPI Multipart Form Parser', () => {
                               properties: {
                                 file: {
                                   type: 'string',
-                                  format: 'binary'
+                                  format: 'binary',
                                 },
                                 type: {
                                   type: 'string',
-                                  enum: ['xray', 'lab', 'prescription']
+                                  enum: ['xray', 'lab', 'prescription'],
                                 },
-                                description: { type: 'string' }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
+                                description: { type: 'string' },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
             responses: {
               '201': {
-                description: 'Medical record added successfully'
-              }
-            }
-          }
-        }
-      }
+                description: 'Medical record added successfully',
+              },
+            },
+          },
+        },
+      },
     }
 
     const converter = new OpenAPIToMCPConverter(spec)
@@ -513,8 +513,8 @@ describe('OpenAPI Multipart Form Parser', () => {
                 name: 'id',
                 in: 'path',
                 required: true,
-                schema: { type: 'integer' }
-              }
+                schema: { type: 'integer' },
+              },
             ],
             requestBody: {
               required: true,
@@ -532,12 +532,12 @@ describe('OpenAPI Multipart Form Parser', () => {
                             properties: {
                               photo: {
                                 type: 'string',
-                                format: 'binary'
+                                format: 'binary',
                               },
                               isProfile: {
-                                type: 'boolean'
-                              }
-                            }
+                                type: 'boolean',
+                              },
+                            },
                           },
                           {
                             type: 'object',
@@ -545,29 +545,29 @@ describe('OpenAPI Multipart Form Parser', () => {
                             properties: {
                               document: {
                                 type: 'string',
-                                format: 'binary'
+                                format: 'binary',
                               },
                               category: {
                                 type: 'string',
-                                enum: ['medical', 'training', 'adoption']
-                              }
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  }
-                }
-              }
+                                enum: ['medical', 'training', 'adoption'],
+                              },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
             },
             responses: {
               '201': {
-                description: 'Content added successfully'
-              }
-            }
-          }
-        }
-      }
+                description: 'Content added successfully',
+              },
+            },
+          },
+        },
+      },
     }
 
     const converter = new OpenAPIToMCPConverter(spec)
@@ -599,4 +599,4 @@ describe('OpenAPI Multipart Form Parser', () => {
     expect(documentOption.required).toContain('document')
     expect(documentOption.required).toContain('category')
   })
-}) 
+})
