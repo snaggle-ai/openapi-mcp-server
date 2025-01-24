@@ -48,6 +48,7 @@ export class HttpClient {
   }
 
   private async prepareFileUpload(operation: OpenAPIV3.OperationObject, params: Record<string, any>): Promise<FormData | null> {
+    console.error('prepareFileUpload', { operation, params })
     const fileParams = isFileUploadParameter(operation)
     if (fileParams.length === 0) return null
 
@@ -55,16 +56,35 @@ export class HttpClient {
 
     // Handle file uploads
     for (const param of fileParams) {
+      console.error(`extracting ${param}`, {params})
       const filePath = params[param]
-      if (!filePath || typeof filePath !== 'string') {
+      if (!filePath) {
         throw new Error(`File path must be provided for parameter: ${param}`)
       }
-
-      try {
-        const fileStream = fs.createReadStream(filePath)
-        formData.append(param, fileStream)
-      } catch (error) {
-        throw new Error(`Failed to read file at ${filePath}: ${error}`)
+      switch (typeof filePath) {
+        case 'string':
+          addFile(param, filePath)
+          break
+        case 'object':
+          if(Array.isArray(filePath)) {
+            let fileCount = 0
+            for(const file of filePath) {
+              addFile(param, file)
+              fileCount++
+            }
+            break
+          }
+          //deliberate fallthrough
+        default:
+          throw new Error(`Unsupported file type: ${typeof filePath}`)
+      }
+      function addFile(name: string, filePath: string) {
+          try {
+            const fileStream = fs.createReadStream(filePath)
+            formData.append(name, fileStream)
+        } catch (error) {
+          throw new Error(`Failed to read file at ${filePath}: ${error}`)
+        }
       }
     }
 

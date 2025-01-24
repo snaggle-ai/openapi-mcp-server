@@ -6,7 +6,7 @@
     "server",
     "proxy"
   ],
-  "version": "1.1.0",
+  "version": "1.2.0-beta03",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -17,7 +17,7 @@
     "parse-openapi": "tsx scripts/parse-openapi.ts"
   },
   "bin": {
-    "openapi-mcp-server": "./dist/cli.mjs"
+    "openapi-mcp-server": "bin/cli.mjs"
   },
   "exports": {
     ".": {
@@ -54,9 +54,8 @@
     "vitest": "^2.1.8"
   },
   "description": "OpenAPI Model Context Protocol Proxy",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "files": [
+    "bin",
     "dist",
     "src",
     "README.md"

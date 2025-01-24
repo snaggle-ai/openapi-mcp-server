@@ -114,6 +114,7 @@ out
 
 .nuxt
 dist
+bin
 
 # Gatsby files
 
