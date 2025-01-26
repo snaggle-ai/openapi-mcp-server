@@ -6,6 +6,7 @@ import { loadOpenApiSpec } from '../start-proxy'
 import { main } from '../start-proxy'
 import { ValidationError } from '../start-proxy'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import yaml from 'js-yaml'
 
 // Mock fs and axios
 vi.mock('node:fs')
@@ -118,6 +119,36 @@ describe('loadOpenApiSpec', () => {
       )
       expect(mockExit).toHaveBeenCalledWith(1)
     })
+
+    it('should load a valid OpenAPI spec from local YAML file', async () => {
+      // Mock fs.readFileSync to return a valid YAML spec
+      const yamlSpec = yaml.dump(validOpenApiSpec)
+      vi.mocked(fs.readFileSync).mockReturnValue(yamlSpec)
+
+      const result = await loadOpenApiSpec('./test-spec.yaml')
+      
+      expect(result).toEqual(validOpenApiSpec)
+      expect(fs.readFileSync).toHaveBeenCalledWith(
+        path.resolve(process.cwd(), './test-spec.yaml'),
+        'utf-8'
+      )
+    })
+
+    it('should handle invalid YAML', async () => {
+      // Mock fs.readFileSync to return invalid YAML
+      vi.mocked(fs.readFileSync).mockReturnValue('invalid: yaml: :')
+
+      // Mock process.exit
+      const mockExit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any)
+
+      await loadOpenApiSpec('./invalid.yaml')
+
+      expect(console.error).toHaveBeenCalledWith(
+        'Failed to parse OpenAPI specification:',
+        expect.any(String)
+      )
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
   })
 
   describe('URL loading', () => {
@@ -161,6 +192,17 @@ describe('loadOpenApiSpec', () => {
         expect.any(String)
       )
       expect(mockExit).toHaveBeenCalledWith(1)
+    })
+
+    it('should load a valid OpenAPI spec from YAML URL', async () => {
+      // Mock axios.get to return a valid YAML spec
+      const yamlSpec = yaml.dump(validOpenApiSpec)
+      vi.mocked(axios.get).mockResolvedValue({ data: yamlSpec })
+
+      const result = await loadOpenApiSpec('http://example.com/api-spec.yaml')
+      
+      expect(result).toEqual(validOpenApiSpec)
+      expect(axios.get).toHaveBeenCalledWith('http://example.com/api-spec.yaml')
     })
   })
 })
