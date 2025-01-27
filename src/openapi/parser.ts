@@ -20,6 +20,7 @@ type FunctionParameters = {
 export class OpenAPIToMCPConverter {
   private schemaCache: Record<string, IJsonSchema> = {}
   private resolvingRefs: Set<string> = new Set()
+  private nameCounter: number = 0
 
   constructor(private openApiSpec: OpenAPIV3.Document | OpenAPIV3_1.Document) {}
 
@@ -171,6 +172,8 @@ export class OpenAPIToMCPConverter {
 
         const mcpMethod = this.convertOperationToMCPMethod(operation, method, path)
         if (mcpMethod) {
+          const uniqueName = this.ensureUniqueName(mcpMethod.name)
+          mcpMethod.name = uniqueName
           tools[apiName]!.methods.push(mcpMethod)
           openApiLookup[apiName + '-' + mcpMethod.name] = { ...operation, method, path }
           zip[apiName + '-' + mcpMethod.name] = { openApi: { ...operation, method, path }, mcp: mcpMethod }
@@ -491,5 +494,19 @@ export class OpenAPIToMCPConverter {
     // Fallback
     return { type: 'string', description: responseObj.description || '' }
   }
-}
 
+  private ensureUniqueName(name: string): string {
+    if (name.length <= 64) {
+      return name
+    }
+
+    const truncatedName = name.slice(0, 64 - 5) // Reserve space for suffix
+    const uniqueSuffix = this.generateUniqueSuffix()
+    return `${truncatedName}-${uniqueSuffix}`
+  }
+
+  private generateUniqueSuffix(): string {
+    this.nameCounter += 1
+    return this.nameCounter.toString().padStart(4, '0')
+  }
+}

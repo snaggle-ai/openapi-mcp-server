@@ -69,8 +69,10 @@ export class MCPProxy {
       // Add methods as separate tools to match the MCP format
       Object.entries(this.tools).forEach(([toolName, def]) => {
         def.methods.forEach(method => {
+          const toolNameWithMethod = `${toolName}-${method.name}`;
+          const truncatedToolName = this.truncateToolName(toolNameWithMethod);
           tools.push({
-            name: `${toolName}-${method.name}`,
+            name: truncatedToolName,
             description: method.description,
             inputSchema: method.inputSchema as Tool['inputSchema']
           });
@@ -163,6 +165,13 @@ export class MCPProxy {
       return 'image'
     }
     return 'binary'
+  }
+
+  private truncateToolName(name: string): string {
+    if (name.length <= 64) {
+      return name;
+    }
+    return name.slice(0, 64);
   }
 
   async connect(transport: Transport) {

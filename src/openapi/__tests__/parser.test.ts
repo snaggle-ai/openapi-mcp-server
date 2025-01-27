@@ -169,6 +169,59 @@ describe('OpenAPIToMCPConverter', () => {
         optional: false
       })
     })
+
+    it('truncates tool names exceeding 64 characters', () => {
+      const longOperationId = 'a'.repeat(65)
+      const specWithLongName: OpenAPIV3.Document = {
+        openapi: '3.0.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0'
+        },
+        paths: {
+          '/pets/{petId}': {
+            get: {
+              operationId: longOperationId,
+              summary: 'Get a pet by ID',
+              parameters: [
+                {
+                  name: 'petId',
+                  in: 'path',
+                  required: true,
+                  description: 'The ID of the pet',
+                  schema: {
+                    type: 'integer'
+                  }
+                }
+              ],
+              responses: {
+                '200': {
+                  description: 'Pet found',
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'integer' },
+                          name: { type: 'string' }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const converter = new OpenAPIToMCPConverter(specWithLongName)
+      const { tools } = converter.convertToMCPTools()
+
+      const longNameMethod = tools.API.methods.find(m => m.name.startsWith('a'.repeat(60)))
+      expect(longNameMethod).toBeDefined()
+      expect(longNameMethod!.name.length).toBeLessThanOrEqual(64)
+    })
   })
 
   describe('Complex API Conversion', () => {
