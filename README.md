@@ -288,9 +288,14 @@ The `HttpClient` handles:
 - Error handling
 
 
-## :tools: Developed with [cursor-tools](https://github.com/eastlondoner/cursor-tools)
+## :hammer: Tools
 
-Build with AI: Smarter, faster, and better with **cursor-tools**.
+Developed with
+
+### [cursor-tools](https://github.com/eastlondoner/cursor-tools)
+Cursor-tools are tools that power up AI code generation. Cursor-tools works with any AI agent that can execute commands including Cursor Agent, Cline & Aider.
+
+:link: [Build with AI: Smarter, faster, and better with **cursor-tools**](https://github.com/eastlondoner/cursor-tools)
 
 
 ## Sponsors
