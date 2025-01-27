@@ -1,6 +1,7 @@
 # OpenAPI MCP Server
 
 [![smithery badge](https://smithery.ai/badge/openapi-mcp-server)](https://smithery.ai/server/openapi-mcp-server)
+[![coverage](https://img.shields.io/badge/coverage-83%25-yellowgreen.svg)](https://github.com/snaggle-ai/openapi-mcp-server)
 
 > **Talk to any OpenAPI (v3.1) compliant API through Claude Desktop!**
 
