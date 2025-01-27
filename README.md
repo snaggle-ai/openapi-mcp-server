@@ -287,6 +287,12 @@ The `HttpClient` handles:
 - File uploads (multipart/form-data)
 - Error handling
 
+
+## :tools: Developed with [cursor-tools](https://github.com/eastlondoner/cursor-tools)
+
+Build with AI: Smarter, faster, and better with **cursor-tools**.
+
+
 ## Sponsors
 
 ### [Vinta.app](https://vinta.app)  
@@ -301,9 +307,6 @@ The `HttpClient` handles:
 
 :link: [Take Vinted reselling to the next level](https://resoled.it)  
 
-## :tools: Developed with [cursor-tools](https://github.com/eastlondoner/cursor-tools)
-
-Build with AI: Smarter, faster, and better with **cursor-tools**.
 
 ## License
 
