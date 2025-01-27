@@ -6,7 +6,7 @@
     "server",
     "proxy"
   ],
-  "version": "1.2.0-beta03",
+  "version": "1.2.0-beta04",
   "license": "MIT",
   "type": "module",
   "scripts": {
