@@ -4,6 +4,7 @@ import { OpenAPIToMCPConverter, HttpClient } from '../../src'
 import { OpenAPIV3 } from 'openapi-types'
 import fs from 'fs/promises'
 import axios from 'axios'
+import yaml from 'js-yaml'
 
 async function loadSpec(specPath: string): Promise<OpenAPIV3.Document> {
   let content: string
@@ -13,7 +14,16 @@ async function loadSpec(specPath: string): Promise<OpenAPIV3.Document> {
   } else {
     content = await fs.readFile(specPath, 'utf-8')
   }
+
+  if (isYamlFile(specPath)) {
+    return yaml.load(content) as OpenAPIV3.Document
+  }
+
   return JSON.parse(content)
+}
+
+function isYamlFile(filePath: string): boolean {
+  return filePath.endsWith('.yaml') || filePath.endsWith('.yml')
 }
 
 async function main() {

@@ -5,12 +5,17 @@ import { MCPProxy } from '../src/mcp/proxy'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import OpenAPISchemaValidator from 'openapi-schema-validator'
 import axios from 'axios'
+import yaml from 'js-yaml'
 
 export class ValidationError extends Error {
   constructor(public errors: any[]) {
     super('OpenAPI validation failed')
     this.name = 'ValidationError'
   }
+}
+
+function isYamlFile(filePath: string): boolean {
+  return filePath.endsWith('.yaml') || filePath.endsWith('.yml')
 }
 
 export async function loadOpenApiSpec(specPath: string): Promise<OpenAPIV3.Document> {
@@ -41,8 +46,8 @@ export async function loadOpenApiSpec(specPath: string): Promise<OpenAPIV3.Docum
 
   // Parse and validate the spec
   try {
-    const parsed = JSON.parse(rawSpec)
-    return parsed
+    const parsed = isYamlFile(specPath) ? yaml.load(rawSpec) : JSON.parse(rawSpec)
+    return parsed as OpenAPIV3.Document
   } catch (error) {
     if (error instanceof ValidationError) {
       throw error

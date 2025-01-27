@@ -36,7 +36,8 @@
     "openapi-client-axios": "^7.5.5",
     "openapi-schema-validator": "^12.1.3",
     "openapi-types": "^12.1.3",
-    "which": "^5.0.0"
+    "which": "^5.0.0",
+    "js-yaml": "^4.1.0"
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.33.1",
