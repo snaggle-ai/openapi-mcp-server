@@ -11,18 +11,18 @@ vi.mock('@modelcontextprotocol/sdk/server/index.js')
 describe('MCPProxy', () => {
   let proxy: MCPProxy
   let mockOpenApiSpec: OpenAPIV3.Document
-  
+
   beforeEach(() => {
     // Reset all mocks
     vi.clearAllMocks()
-    
+
     // Setup minimal OpenAPI spec for testing
     mockOpenApiSpec = {
       openapi: '3.0.0',
       servers: [{ url: 'http://localhost:3000' }],
       info: {
         title: 'Test API',
-        version: '1.0.0'
+        version: '1.0.0',
       },
       paths: {
         '/test': {
@@ -30,12 +30,12 @@ describe('MCPProxy', () => {
             operationId: 'getTest',
             responses: {
               '200': {
-                description: 'Success'
-              }
-            }
-          }
-        }
-      }
+                description: 'Success',
+              },
+            },
+          },
+        },
+      },
     }
 
     proxy = new MCPProxy('test-proxy', mockOpenApiSpec)
@@ -44,9 +44,9 @@ describe('MCPProxy', () => {
   describe('listTools handler', () => {
     it('should return converted tools from OpenAPI spec', async () => {
       const server = (proxy as any).server
-      const listToolsHandler = server.setRequestHandler.mock.calls[0].filter((x: unknown) => typeof x === 'function')[0];
+      const listToolsHandler = server.setRequestHandler.mock.calls[0].filter((x: unknown) => typeof x === 'function')[0]
       const result = await listToolsHandler()
-      
+
       expect(result).toHaveProperty('tools')
       expect(Array.isArray(result.tools)).toBe(true)
     })
@@ -81,54 +81,54 @@ describe('MCPProxy', () => {
         data: { message: 'success' },
         status: 200,
         headers: new Headers({
-          'content-type': 'application/json'
-        })
-      };
-      (HttpClient.prototype.executeOperation as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse);
+          'content-type': 'application/json',
+        }),
+      }
+      ;(HttpClient.prototype.executeOperation as ReturnType<typeof vi.fn>).mockResolvedValue(mockResponse)
 
       // Set up the openApiLookup with our test operation
-      (proxy as any).openApiLookup = {
+      ;(proxy as any).openApiLookup = {
         'API-getTest': {
           operationId: 'getTest',
           responses: { '200': { description: 'Success' } },
           method: 'get',
-          path: '/test'
-        }
-      };
+          path: '/test',
+        },
+      }
 
-      const server = (proxy as any).server;
-      const handlers = server.setRequestHandler.mock.calls.flatMap((x: unknown[]) => x).filter((x: unknown) => typeof x === 'function');
-      const callToolHandler = handlers[1];
+      const server = (proxy as any).server
+      const handlers = server.setRequestHandler.mock.calls.flatMap((x: unknown[]) => x).filter((x: unknown) => typeof x === 'function')
+      const callToolHandler = handlers[1]
 
       const result = await callToolHandler({
         params: {
           name: 'API-getTest',
-          arguments: {}
-        }
+          arguments: {},
+        },
       })
 
       expect(result).toEqual({
         content: [
           {
             type: 'text',
-            text: JSON.stringify({ message: 'success' })
-          }
-        ]
+            text: JSON.stringify({ message: 'success' }),
+          },
+        ],
       })
     })
 
     it('should throw error for non-existent operation', async () => {
       const server = (proxy as any).server
-      const handlers = server.setRequestHandler.mock.calls.flatMap((x: unknown[]) => x).filter((x: unknown) => typeof x === 'function');
-      const callToolHandler = handlers[1];
+      const handlers = server.setRequestHandler.mock.calls.flatMap((x: unknown[]) => x).filter((x: unknown) => typeof x === 'function')
+      const callToolHandler = handlers[1]
 
       await expect(
         callToolHandler({
           params: {
             name: 'nonExistentMethod',
-            arguments: {}
-          }
-        })
+            arguments: {},
+          },
+        }),
       ).rejects.toThrow('Method nonExistentMethod not found')
     })
 
@@ -190,80 +190,74 @@ describe('MCPProxy', () => {
   })
 
   describe('parseHeadersFromEnv', () => {
-    const originalEnv = process.env;
+    const originalEnv = process.env
 
     beforeEach(() => {
-      process.env = { ...originalEnv };
-    });
+      process.env = { ...originalEnv }
+    })
 
     afterEach(() => {
-      process.env = originalEnv;
-    });
+      process.env = originalEnv
+    })
 
     it('should parse valid JSON headers from env', () => {
       process.env.OPENAPI_MCP_HEADERS = JSON.stringify({
-        'Authorization': 'Bearer token123',
-        'X-Custom-Header': 'test'
-      });
+        Authorization: 'Bearer token123',
+        'X-Custom-Header': 'test',
+      })
 
-      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec);
+      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec)
       expect(HttpClient).toHaveBeenCalledWith(
         expect.objectContaining({
           headers: {
-            'Authorization': 'Bearer token123',
-            'X-Custom-Header': 'test'
-          }
+            Authorization: 'Bearer token123',
+            'X-Custom-Header': 'test',
+          },
         }),
-        expect.anything()
-      );
-    });
+        expect.anything(),
+      )
+    })
 
     it('should return empty object when env var is not set', () => {
-      delete process.env.OPENAPI_MCP_HEADERS;
+      delete process.env.OPENAPI_MCP_HEADERS
 
-      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec);
+      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec)
       expect(HttpClient).toHaveBeenCalledWith(
         expect.objectContaining({
-          headers: {}
+          headers: {},
         }),
-        expect.anything()
-      );
-    });
+        expect.anything(),
+      )
+    })
 
     it('should return empty object and warn on invalid JSON', () => {
-      const consoleSpy = vi.spyOn(console, 'warn');
-      process.env.OPENAPI_MCP_HEADERS = 'invalid json';
+      const consoleSpy = vi.spyOn(console, 'warn')
+      process.env.OPENAPI_MCP_HEADERS = 'invalid json'
 
-      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec);
+      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec)
       expect(HttpClient).toHaveBeenCalledWith(
         expect.objectContaining({
-          headers: {}
+          headers: {},
         }),
-        expect.anything()
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Failed to parse OPENAPI_MCP_HEADERS environment variable:',
-        expect.any(Error)
-      );
-    });
+        expect.anything(),
+      )
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to parse OPENAPI_MCP_HEADERS environment variable:', expect.any(Error))
+    })
 
     it('should return empty object and warn on non-object JSON', () => {
-      const consoleSpy = vi.spyOn(console, 'warn');
-      process.env.OPENAPI_MCP_HEADERS = '"string"';
+      const consoleSpy = vi.spyOn(console, 'warn')
+      process.env.OPENAPI_MCP_HEADERS = '"string"'
 
-      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec);
+      const proxy = new MCPProxy('test-proxy', mockOpenApiSpec)
       expect(HttpClient).toHaveBeenCalledWith(
         expect.objectContaining({
-          headers: {}
+          headers: {},
         }),
-        expect.anything()
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'OPENAPI_MCP_HEADERS environment variable must be a JSON object, got:',
-        'string'
-      );
-    });
-  });
+        expect.anything(),
+      )
+      expect(consoleSpy).toHaveBeenCalledWith('OPENAPI_MCP_HEADERS environment variable must be a JSON object, got:', 'string')
+    })
+  })
   describe('connect', () => {
     it('should connect to transport', async () => {
       const mockTransport = {} as Transport

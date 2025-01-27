@@ -7,7 +7,7 @@ import { OpenAPIV3 } from 'openapi-types'
  */
 export function isFileUploadParameter(operation: OpenAPIV3.OperationObject): string[] {
   const fileParams: string[] = []
-  
+
   if (!operation.requestBody) return fileParams
 
   const requestBody = operation.requestBody as OpenAPIV3.RequestBodyObject
@@ -37,4 +37,4 @@ export function isFileUploadParameter(operation: OpenAPIV3.OperationObject): str
   })
 
   return fileParams
-} 
+}

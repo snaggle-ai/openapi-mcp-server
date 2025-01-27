@@ -1,11 +1,6 @@
 #!/usr/bin/env node
 
 import { build } from 'esbuild'
-import { fileURLToPath } from 'url'
-import path from 'node:path'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 async function main() {
   try {

@@ -1,10 +1,7 @@
 import Mustache from 'mustache'
 import { AuthTemplate, TemplateContext } from './types'
 
-export function renderAuthTemplate(
-  template: AuthTemplate,
-  context: TemplateContext
-): AuthTemplate {
+export function renderAuthTemplate(template: AuthTemplate, context: TemplateContext): AuthTemplate {
   // Disable HTML escaping for URLs
   Mustache.escape = (text) => text
 
@@ -15,7 +12,7 @@ export function renderAuthTemplate(
   const renderedTemplate: AuthTemplate = {
     ...template,
     url: renderedUrl,
-    headers: { ...template.headers } // Create a new headers object to avoid modifying the original
+    headers: { ...template.headers }, // Create a new headers object to avoid modifying the original
   }
 
   // Render body if it exists
@@ -24,4 +21,4 @@ export function renderAuthTemplate(
   }
 
   return renderedTemplate
-} 
+}

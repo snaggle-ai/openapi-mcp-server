@@ -286,6 +286,20 @@ The `HttpClient` handles:
 - File uploads (multipart/form-data)
 - Error handling
 
+## Sponsors
+
+### [Vinta.app](https://vinta.app)  
+**Optimise your Vinted accounting** with real-time analytics, inventory management, and tax compliance tools.  
+
+:link: [Start scaling your Vinted business today](https://vinta.app)  
+
+---
+
+### [Resoled.it](https://resoled.it)  
+**Automate your Vinted reselling business** with advanced tools like autobuy, custom snipers, and one-click relisting.  
+
+:link: [Take Vinted reselling to the next level](https://resoled.it)  
+
 ## License
 
 MIT
