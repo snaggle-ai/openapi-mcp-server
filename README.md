@@ -301,6 +301,10 @@ The `HttpClient` handles:
 
 :link: [Take Vinted reselling to the next level](https://resoled.it)  
 
+## :tools: Developed with [cursor-tools](https://github.com/eastlondoner/cursor-tools)
+
+Build with AI: Smarter, faster, and better with **cursor-tools**.
+
 ## License
 
 MIT
