@@ -6,7 +6,7 @@ import fs from 'fs/promises'
 import axios from 'axios'
 import yaml from 'js-yaml'
 
-async function loadSpec(specPath: string): Promise<OpenAPIV3.Document> {
+export async function loadSpec(specPath: string): Promise<OpenAPIV3.Document> {
   let content: string
   if (specPath.startsWith('http://') || specPath.startsWith('https://')) {
     const response = await axios.get(specPath)

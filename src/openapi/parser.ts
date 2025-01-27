@@ -186,8 +186,8 @@ export class OpenAPIToMCPConverter {
           const uniqueName = this.ensureUniqueName(mcpMethod.name)
           mcpMethod.name = uniqueName
           tools[apiName]!.methods.push(mcpMethod)
-          openApiLookup[apiName + '-' + mcpMethod.name] = { ...operation, method, path }
-          zip[apiName + '-' + mcpMethod.name] = { openApi: { ...operation, method, path }, mcp: mcpMethod }
+          openApiLookup[apiName + '-' + uniqueName] = { ...operation, method, path }
+          zip[apiName + '-' + uniqueName] = { openApi: { ...operation, method, path }, mcp: mcpMethod }
         }
       }
     }
@@ -364,6 +364,8 @@ export class OpenAPIToMCPConverter {
       return null
     }
 
+    const methodName = operation.operationId
+
     const inputSchema: IJsonSchema & { type: 'object' } = {
       $defs: this.convertComponentsToJsonSchema(),
       type: 'object',
@@ -454,16 +456,16 @@ export class OpenAPIToMCPConverter {
       // const zodSchema = eval(zodSchemaStr) as z.ZodType
 
       return {
-        name: operation.operationId,
+        name: methodName,
         description,
         inputSchema,
         ...(returnSchema ? { returnSchema } : {}),
       }
     } catch (error) {
-      console.warn(`Failed to generate Zod schema for ${operation.operationId}:`, error)
+      console.warn(`Failed to generate Zod schema for ${methodName}:`, error)
       // Fallback to a basic object schema
       return {
-        name: operation.operationId,
+        name: methodName,
         description,
         inputSchema,
         ...(returnSchema ? { returnSchema } : {}),

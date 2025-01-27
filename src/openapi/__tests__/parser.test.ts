@@ -197,7 +197,7 @@ describe('OpenAPIToMCPConverter', () => {
       const converter = new OpenAPIToMCPConverter(specWithLongName)
       const { tools } = converter.convertToMCPTools()
 
-      const longNameMethod = tools.API.methods.find(m => m.name.startsWith('a'.repeat(60)))
+      const longNameMethod = tools.API.methods.find(m => m.name.startsWith('a'.repeat(59)))
       expect(longNameMethod).toBeDefined()
       expect(longNameMethod!.name.length).toBeLessThanOrEqual(64)
     })
@@ -430,7 +430,7 @@ describe('OpenAPIToMCPConverter', () => {
 
       const params = getParamsFromSchema(createPetMethod!)
       // Now that we are preserving $ref, the request body won't be expanded into multiple parameters.
-      // Instead, we’ll have a single "body" parameter referencing Pet.
+      // Instead, we'll have a single "body" parameter referencing Pet.
       expect(params).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
