@@ -167,6 +167,16 @@ You can say:
 
 2. **Restart Claude Desktop** and start interacting with your API!
 
+## Running the server over SSE
+
+To run the server over SSE, use the `--sse` flag when starting the server:
+
+```bash
+npx openapi-mcp-server /abs/path/to/petstore-openapi.json --sse
+```
+
+This will start the server and listen for SSE connections on the specified port (default is 3001). You can then connect to the server using an SSE client.
+
 ## Examples
 
 This repository includes a complete example of a Petstore API server that you can use to test the OpenAPI MCP Server. The example server implements a basic CRUD API for managing pets, making it perfect for learning how to use this tool.
