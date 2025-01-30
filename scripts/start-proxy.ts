@@ -3,6 +3,7 @@ import path from 'node:path'
 import { OpenAPIV3 } from 'openapi-types'
 import { MCPProxy } from '../src/mcp/proxy'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
 import OpenAPISchemaValidator from 'openapi-schema-validator'
 import axios from 'axios'
 import yaml from 'js-yaml'
@@ -60,15 +61,43 @@ export async function loadOpenApiSpec(specPath: string): Promise<OpenAPIV3.Docum
 // Main execution
 export async function main(args: string[] = process.argv.slice(2)) {
   const specPath = args[0]
+  const useSSE = args.includes('--sse')
   if (!specPath) {
-    throw new Error('Usage: openapi-mcp-server <path-to-openapi-spec>')
+    throw new Error('Usage: openapi-mcp-server <path-to-openapi-spec> [--sse]')
   }
 
   const openApiSpec = await loadOpenApiSpec(specPath)
   const proxy = new MCPProxy('OpenAPI Tools', openApiSpec)
   
-  console.error('Connecting to Claude Desktop...')
-  return proxy.connect(new StdioServerTransport())
+  if (useSSE) {
+    const express = require('express')
+    const app = express()
+    const PORT = process.env.PORT || 3001
+
+    app.get('/sse', async (req, res) => {
+      console.log('Received connection')
+      const transport = new SSEServerTransport('/message', res)
+      await proxy.connect(transport)
+
+      proxy.server.onclose = async () => {
+        await proxy.server.cleanup()
+        await proxy.server.close()
+        process.exit(0)
+      }
+    })
+
+    app.post('/message', async (req, res) => {
+      console.log('Received message')
+      await transport.handlePostMessage(req, res)
+    })
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`)
+    })
+  } else {
+    console.error('Connecting to Claude Desktop...')
+    await proxy.server.connect(new StdioServerTransport())
+  }
 }
 
 const shouldStart = process.argv[1].endsWith('openapi-mcp-server')
