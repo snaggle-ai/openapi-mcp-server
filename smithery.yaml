@@ -10,7 +10,7 @@ startCommand:
     properties:
       openApiJsonPath:
         type: string
-        description: The absolute path to the OpenAPI v3.1 JSON file.
+        description: Path to the OpenAPI v3.1 specification in json or yaml. Either an absolute local path or a https url.
   commandFunction:
     # A function that produces the CLI command to start the MCP on stdio.
     |-
