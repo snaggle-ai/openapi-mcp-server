@@ -1,0 +1,17 @@
+# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+
+startCommand:
+  type: stdio
+  configSchema:
+    # JSON Schema defining the configuration options for the MCP.
+    type: object
+    required:
+      - openApiJsonPath
+    properties:
+      openApiJsonPath:
+        type: string
+        description: Path to the OpenAPI v3.1 specification in json or yaml. Either an absolute local path or a https url.
+  commandFunction:
+    # A function that produces the CLI command to start the MCP on stdio.
+    |-
+    config => ({command: 'npx', args: ['openapi-mcp-server', config.openApiJsonPath]})

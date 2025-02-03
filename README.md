@@ -167,6 +167,14 @@ You can say:
 
 2. **Restart Claude Desktop** and start interacting with your API!
 
+### Installing via Smithery
+
+To install OpenAPI MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/openapi-mcp-server):
+
+```bash
+npx -y @smithery/cli install openapi-mcp-server --client claude
+```
+
 ## Examples
 
 This repository includes a complete example of a Petstore API server that you can use to test the OpenAPI MCP Server. The example server implements a basic CRUD API for managing pets, making it perfect for learning how to use this tool.
