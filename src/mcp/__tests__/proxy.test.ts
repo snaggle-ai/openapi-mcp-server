@@ -3,6 +3,9 @@ import { OpenAPIV3 } from 'openapi-types'
 import { HttpClient } from '../../client/http-client'
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js'
 import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest'
+import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js'
+import express from 'express'
+import request from 'supertest'
 
 // Mock the dependencies
 vi.mock('../../client/http-client')
@@ -265,6 +268,47 @@ describe('MCPProxy', () => {
 
       const server = (proxy as any).server
       expect(server.connect).toHaveBeenCalledWith(mockTransport)
+    })
+  })
+
+  describe('SSE transport', () => {
+    let app: express.Express
+    let server: any
+
+    beforeEach(() => {
+      app = express()
+      server = app.listen(3001)
+    })
+
+    afterEach(() => {
+      server.close()
+    })
+
+    it('should handle SSE connections', async () => {
+      app.get('/sse', async (req, res) => {
+        const transport = new SSEServerTransport('/message', res)
+        await proxy.connect(transport)
+
+        proxy.server.onclose = async () => {
+          await proxy.server.cleanup()
+          await proxy.server.close()
+          process.exit(0)
+        }
+      })
+
+      const response = await request(app).get('/sse')
+      expect(response.status).toBe(200)
+    })
+
+    it('should handle SSE messages', async () => {
+      app.post('/message', async (req, res) => {
+        const transport = new SSEServerTransport('/message', res)
+        await proxy.connect(transport)
+        await transport.handlePostMessage(req, res)
+      })
+
+      const response = await request(app).post('/message').send({ message: 'test' })
+      expect(response.status).toBe(200)
     })
   })
 })

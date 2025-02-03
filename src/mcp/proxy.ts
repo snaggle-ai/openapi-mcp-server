@@ -24,7 +24,7 @@ type NewToolDefinition = {
 }
 
 export class MCPProxy {
-  private server: Server
+  public server: Server
   private httpClient: HttpClient
   private tools: Record<string, NewToolDefinition>
   private openApiLookup: Record<string, OpenAPIV3.OperationObject & { method: string; path: string }>
@@ -160,10 +160,5 @@ export class MCPProxy {
       return name;
     }
     return name.slice(0, 64);
-  }
-
-  async connect(transport: Transport) {
-    // The SDK will handle stdio communication
-    await this.server.connect(transport)
   }
 }
